@@ -1,47 +1,52 @@
-# 透かしモーション
+**Vibe-coded with GPT-6 Astra in Codex.**
 
-Galaxy Z Fold7の開閉角度に合わせて、使用中のアプリを「すりガラスの向こうに残る画面」のように描く実験アプリです。開閉中の画面を一時的に保持し、立体視差とぼかしを重ね、移動先のアプリへつなぎます。ホームアプリを置き換える必要はありません。
+English | [日本語](README.ja.md)
 
-**0.1.14はSM-F966Z専用の実機調整版です。日常利用での安定性、全アプリ・全OSへの対応は保証していません。** 内側の標準ナビゲーション・通知パネルには制約があります。導入前に[制約](#現在の制約)と[停止・復旧](#停止再開通常の表示への戻し方)を確認してください。
+# Sukashi Motion
 
-- [APKをダウンロードする](https://github.com/bunkaich/sukashi-motion/releases/tag/v0.1.14)
-- [ソースからビルドする](#ソースからビルドする)
-- [ライセンスと第三者のソフトウェア](THIRD_PARTY_NOTICES.md)
+I built this out of curiosity. I don't plan to actively develop or maintain it. I may make changes if something sparks my interest, but otherwise expect this repository to remain mostly untouched.
 
-Apple、Samsung、Shizukuの公式アプリではありません。動画などで見られる折りたたみ時の演出を着想に、自作したものです。第三者のUI素材・壁紙・動画は含めていません。
+An experimental Galaxy Z Fold7 app that uses hinge angle to create a frosted-glass transition between the cover and inner screens. It holds an app's image in place with parallax and blur while the phone folds, then hands over to the app on the other display. It works with regular apps without replacing your launcher.
 
-## 対応する環境
+[Download v0.1.14](https://github.com/bunkaich/sukashi-motion/releases/tag/v0.1.14)
 
-| 項目 | 0.1.14の条件 |
-| --- | --- |
-| 実機で確認した端末 | Galaxy Z Fold7 **SM-F966Z** |
-| 確認したOS | Android 16 / One UI 8.5、ビルドF966ZSCS1BZH4 |
-| 画面制御 | SM-F966Z以外では開始しない仕様。他の型番・OS版は未検証 |
-| Shizuku | 別途導入・起動が必要。確認版は13.6.0.r1086.2650830c |
-| 細かな角度の取得 | Samsung純正の開閉連動動画壁紙が必要。下記の初期設定を参照 |
-| プレビューだけを使う場合 | Android 13以上。「見え方を試す」から画面取得なしで表示 |
+## Requirements
 
-端末をroot化する必要はありません。Shizukuを端末内のワイヤレスデバッグで起動すれば、通常使用中のUSB接続は不要です。ただしShizukuが停止すると演出も止まります。端末の再起動後はShizukuを再度起動してください。ケーブルを外した状態での長時間安定動作はまだ確認できていません。
+- **Galaxy Z Fold7 SM-F966Z only.** Display control is disabled on other models.
+- Tested on Android 16 / One UI 8.5, build `F966ZSCS1BZH4`.
+- [Shizuku](https://shizuku.rikka.app/guide/setup/), installed and running. Tested with `13.6.0.r1086.2650830c`.
+- The supported Samsung stock interactive wallpaper, configured as described below.
 
-## APKから使う
+No root required. Once set up, it can run without USB if Shizuku is started through wireless debugging. Shizuku must be restarted after a reboot. Long-term stability without USB has not been verified.
 
-### 1. Shizukuを準備する
+## Setup
 
-[Shizuku公式の案内](https://shizuku.rikka.app/guide/setup/)に従って、公式の管理アプリをインストールし、起動します。ShizukuのAPKは本リポジトリでは再配布しません。
+The app's interface is currently in Japanese.
 
-Androidの開発者向けオプションからワイヤレスデバッグを有効にして、Shizukuをペア設定・起動してください。必要な操作と対応条件は公式の案内を優先してください。PC経由で起動する方法もあります。
+### 1. Start Shizuku
 
-### 2. 角度を取得する壁紙を準備する
+Follow the [official setup guide](https://shizuku.rikka.app/guide/setup/) to install and start Shizuku using wireless debugging or a computer.
 
-この版の細かな角度は、通常アプリに公開されたヒンジセンサーを直接読んでいるわけではありません。Shizukuの補助処理が、Samsungの純正動画壁紙に角度を問い合わせ、返ってきた角度だけをログから読み取ります。確認機では標準のヒンジセンサーからは主に0・90・180度しか得られませんでした。2系統ジャイロを使った推定も行っていません。
+### 2. Configure the stock wallpaper
 
-1. 本アプリと、ほかの開閉演出・画面制御アプリを停止します。
-2. 内側ホームに、Samsung純正の開閉連動動画壁紙を設定します。設定補助が対応するのは、端末内で `video_002.mp4` と識別される純正壁紙です。前面は対応する純正静止壁紙 `sub_wallpaper_002` が前提です。設定画面の名称や選択肢はOS版により異なります。
-3. 前面でも細かな角度を取得するには、以下の自作補助で前面ホームを同じ純正動画壁紙に切り替えます。**One UIホームに戻したときの前面壁紙も変わります。** 自分の壁紙を後で戻したい場合は、先に元の画像や設定を保存してください。
+Fine-grained angles come from Samsung's interactive wallpaper through a Shizuku helper. On the tested device, the standard hinge sensor mainly reported 0°, 90° and 180°. This app does not estimate the angle using two gyroscopes.
 
-設定済みの補助を使う場合は、リリースの `sukashi-wallpaper-setup-0.1.14.zip` を展開し、Python 3とAndroidのplatform-tools（ADB）を用意して、展開先で `python3 cover-wallpaper.py status`、続けて `python3 cover-wallpaper.py apply` を実行できます。この場合はJavaやSDK platformの導入・ビルドは不要です。
+1. Stop Sukashi Motion and any other fold-animation or display-control helpers.
+2. Set the inner home screen to the Samsung stock interactive wallpaper identified internally as `video_002.mp4`. The cover home screen must use its matching stock image, `sub_wallpaper_002`. Wallpaper names in Settings vary by OS version.
+3. To get fine-grained angles on the cover screen too, use the helper below to apply the same stock interactive wallpaper there. **This changes the cover home wallpaper in One UI as well.** Keep your original wallpaper if you want to restore it later.
 
-補助もソースから作る場合は、PCのPython 3、Java 17、Android SDKを使います。[ビルド環境](#ソースからビルドする)を用意し、ソースのルートで実行します。
+Download and extract `sukashi-wallpaper-setup-0.1.14.zip` from the release. Install Python 3 and Android SDK platform-tools (ADB). Connect one phone with USB debugging authorized, then run these commands in the extracted folder:
+
+```sh
+python3 cover-wallpaper.py status
+python3 cover-wallpaper.py apply
+```
+
+`status` checks the wallpaper without changing it. `apply` changes the cover home wallpaper only, not the lock screen. Add `--adb /path/to/adb` if ADB is not on your PATH, or `--serial DEVICE_SERIAL` if multiple devices are connected.
+
+The helper refuses to overwrite unsupported or custom wallpapers. If it reports `other wallpaper` or `Expected inner angle-aware wallpaper unavailable`, the required wallpaper is not configured. It uses assets already installed on your phone; no Samsung wallpaper files are included here.
+
+To build the helper yourself, prepare the [build environment](#build-from-source), then run from the repository root:
 
 ```sh
 python3 tools/build-wallpaper-helper.py
@@ -49,132 +54,64 @@ python3 tools/cover-wallpaper.py status
 python3 tools/cover-wallpaper.py apply
 ```
 
-端末はUSBデバッグを許可して1台だけ接続してください。`adb` が見つからない場合は `--adb /path/to/adb`、複数台接続時は `--serial 対象端末のシリアル` を指定できます。
+### 3. Install and start the app
 
-- `status` は現在の壁紙を確認するだけです。端末へ補助JARを転送しますが、壁紙は変更しません。
-- `apply` は確認済みの純正壁紙だけを対象に、前面ホームを切り替えます。ロック画面は変更しません。
-- カスタム壁紙、異なる純正壁紙、別の型番、必要なAPIがないOSでは、変更せずエラーにします。エラー時に機種判定を外して実行しないでください。
-- `other wallpaper` や `Expected inner angle-aware wallpaper unavailable` が出る場合、この補助が想定する壁紙ではありません。初期設定は完了していません。
+1. Install `Sukashi-Motion-0.1.14.apk` from the release. With ADB: `adb install -r Sukashi-Motion-0.1.14.apk`.
+2. Open **透かしモーション**, tap **Shizukuを接続** (Connect Shizuku), and grant access.
+3. Tap **重ねて表示を許可** (Allow display over other apps). Allow notifications too.
+4. Read the screen-capture explanation, then tap **画面の一時利用に同意して常時有効にする** (Consent to temporary screen use and enable).
+5. With the phone unlocked, close it fully once to initialize. Open an app such as Calculator and slowly fold and unfold the phone.
 
-Samsungの壁紙データは配布しません。補助は、対応端末にインストール済みの素材とサービスだけを利用します。初期設定後、通常の演出にPCは使いません。
+## Controls and limitations
 
-### 3. 透かしモーションを入れて開始する
+The cover screen uses Samsung's normal navigation. The inner screen has a small custom bar for **Recents, Home, Back and Settings**. Native navigation gestures and the notification/quick-settings shade are not fully available on the inner screen. Use the custom bar, the cover screen, or stop the app when you need the normal controls.
 
-1. [v0.1.14のリリース](https://github.com/bunkaich/sukashi-motion/releases/tag/v0.1.14)から `Sukashi-Motion-0.1.14.apk` を取得し、Androidの案内に従ってインストールします。PCからなら `adb install -r Sukashi-Motion-0.1.14.apk` でも導入できます。
-2. 「透かしモーション」を開き、「Shizukuを接続」でこのアプリにShizukuの利用を許可します。
-3. 「重ねて表示を許可」で許可し、通知も許可します。
-4. 使用中の画面を一時的に扱う説明を読み、「画面の一時利用に同意して常時有効にする」を押します。
-5. ロック解除した状態で一度完全に閉じ、準備が完了してから電卓などの通常アプリを開いて、ゆっくり開閉してください。
+- Both displays are kept on while active, increasing battery use. Normal display control resumes when stopped or locked.
+- The transition uses a frozen image. Video and games do not keep playing in that image.
+- Home, Recents and other system screens are not handled like regular app tasks. Protected screens and apps that refuse display migration are unsupported.
+- App resizing can still cause layout shifts. Samsung's private APIs and wallpaper responses may change after OS updates.
+- If Shizuku stops, the animation stops. Automatic recovery is not guaranteed.
 
-以前の透かしランチャーや別の画面制御補助が動いている場合は、先に停止してください。既定のホームは変更しません。保護された画面や、画面の移動を拒否するアプリでは利用できません。
+## Stop and restore
 
-### 配布ファイルを照合する
-
-リリースには `SHA256SUMS` も添付します。macOSでは `shasum -a 256 Sukashi-Motion-0.1.14.apk`、Linuxでは `sha256sum Sukashi-Motion-0.1.14.apk` を実行し、記載された値と照合できます。
-
-配布APKは従来の実機試験版と互換性のあるデバッグ署名を使用しています。通常のストア向け本番署名ではありません。署名鍵は公開しません。ソースから自分でビルドしたAPKは自分の環境の署名になり、配布APKへそのまま上書きできません。
-
-## 開いた画面の操作
-
-前面はSamsung標準の操作バーを使います。内側の下端には本アプリの「最近使ったアプリ・ホーム・戻る・設定」が表示されます。履歴ではカードを選んでアプリを切り替えます。
-
-この版は前面を主画面として維持し、通常アプリの既存タスクを内外へ移します。このため、内側の標準ジェスチャー、標準のタスク切替、上から引き出す通知・クイック設定をそのまま復元することはできていません。必要なときは補助の設定ボタン、前面の標準操作、または一時停止を使ってください。開閉演出中は補助操作バーと上部のステータス表示を隠します。
-
-## 停止・再開・通常の表示への戻し方
-
-- **通常の停止**：「透かしモーション」を開き、「停止して画面制御を解除」を押します。常時有効もオフになります。
-- **止まった演出の再開**：Shizukuが動作中であることを確認し、通知の「再開」またはアプリの「アニメーションを再開」を押します。ロック解除後に一度完全に閉じます。
-- **端末を再起動した場合**：先にShizukuを起動し、必要ならアプリから再開します。Shizuku自体をこのアプリが自動起動することはできません。
-- **表示や操作が戻らない場合**：まず閉じた前面で本アプリを開いて停止します。操作できない場合は端末を再起動し、Shizukuを再開する前に本アプリの常時有効を停止してください。アンインストールする場合も、先に停止して画面制御を解除します。
-- **壁紙を戻す場合**：本アプリを停止してから、Androidの壁紙設定で選び直してください。補助で変更した既知の純正静止壁紙へ戻す場合だけ、下記も使えます。
+- **Stop:** open the app and tap **停止して画面制御を解除** (Stop and release display control). Do this before uninstalling.
+- **Resume:** make sure Shizuku is running, then use **再開** in the notification or **アニメーションを再開** in the app. Unlock and close the phone fully once.
+- **After a reboot:** start Shizuku again, then resume the app if needed.
+- **If the display or controls get stuck:** close the phone and stop the app from the cover screen. If that is not possible, reboot and disable the app's always-on mode before restarting Shizuku.
+- **Restore your wallpaper:** stop the app and choose a wallpaper in Android Settings. To restore the specific stock cover image changed by the helper, run this in the extracted helper folder:
 
 ```sh
-python3 tools/cover-wallpaper.py restore-stock
+python3 cover-wallpaper.py restore-stock
 ```
 
-`restore-stock` は任意の以前の壁紙を復元するバックアップ機能ではありません。対応する純正静止壁紙へ戻します。設定後に別の壁紙へ変更していた場合は上書きを拒否します。
+From a source checkout, use `python3 tools/cover-wallpaper.py restore-stock`. This restores the known stock image, not an arbitrary previous wallpaper. It refuses to overwrite a different wallpaper selected since setup.
 
-バックグラウンドで止まりやすい場合は、本アプリとShizukuの電池設定を確認してください。「制限なし」は停止を減らす可能性がありますが、Shizukuの終了を防ぐ保証はありません。USB切断・消灯後の停止原因は調査中です。
+## Build from source
 
-## ソースからビルドする
-
-### 必要なもの
-
-- Git、Java 17のJDK
-- Android SDK：platforms;android-37.0、build-tools;36.0.0、platform-tools
-- 初回の依存取得用のインターネット接続
-- 壁紙の設定補助を使う場合はPython 3
-
-SDKやJDKは各提供元から取得し、必要なライセンスへ同意してください。SDK Managerを使う場合の例です。
+Use Git, JDK 17 and the Android SDK. Set `JAVA_HOME` to your JDK and `ANDROID_HOME` to your SDK; add `platform-tools` to PATH for ADB.
 
 ```sh
 sdkmanager "platforms;android-37.0" "build-tools;36.0.0" "platform-tools"
 sdkmanager --licenses
-```
 
-Java 17へ `JAVA_HOME`、Android SDKへ `ANDROID_HOME` を設定します。`adb` を使う場合はSDK内の `platform-tools` にパスを通します。SDKの場所は、Git管理外の `local.properties` に `sdk.dir=SDKの絶対パス` と書いても指定できます。壁紙補助には `ANDROID_HOME` または `--sdk` が必要です。
-
-```sh
 git clone https://github.com/bunkaich/sukashi-motion.git
 cd sukashi-motion
 git checkout v0.1.14
 ./gradlew :app:assembleRelease :app:testDebugUnitTest :app:lintRelease
 ```
 
-WindowsではGradleの起動を `gradlew.bat` に読み替えてください。公開用のクリーンビルドはmacOS / Java 17で確認しています。Windows/Linuxでの一連の再現は未検証です。
+Output: `app/build/outputs/apk/release/app-release.apk`. Use `gradlew.bat` on Windows. Builds were verified on macOS with Java 17; Windows and Linux have not been tested end to end.
 
-成果物は `app/build/outputs/apk/release/app-release.apk` です。Gradle 9.5.1はWrapperから取得し、公式SHA-256で照合します。Android Gradle Pluginは9.2.1です。`compileSdk=37`、`targetSdk=36`、`minSdk=33`、`versionCode=33` で固定しています。
+The wrapper pins Gradle 9.5.1 and verifies its checksum. AGP is 9.2.1; compile SDK is 37, target SDK is 36, and minimum SDK is 33. Initial builds need internet access to download dependencies. The wallpaper helper also needs Python 3.
 
-「再現」は同じソース・設定から機能をビルドする意味です。ローカルの署名鍵やZIP生成条件が異なるため、配布APKと同一のバイト列になる保証はありません。自分の署名版へ切り替える際は、既存版を停止してからアンインストール・再導入が必要になります。アプリの設定は消え、Shizukuの許可などもやり直しになります。壁紙は自動では戻りません。
+The release APK uses the existing experimental debug signing certificate. Signing keys are not published. Your own build uses your local certificate and cannot directly replace the release APK. Stop and uninstall the existing app before switching signatures; settings and permissions will need to be configured again. Uninstalling does not restore the wallpaper.
 
-### 試験
+Release downloads include `SHA256SUMS`. Compare the APK with `shasum -a 256 Sukashi-Motion-0.1.14.apk` on macOS or `sha256sum Sukashi-Motion-0.1.14.apk` on Linux.
 
-単体試験と静的検査は上記コマンドに含まれます。描画の端末試験は、試験用のAndroid端末・エミュレーターを用意して実行します。
+## Screen access
 
-```sh
-./gradlew :app:connectedDebugAndroidTest
-```
+Shizuku grants ADB shell-level access. Captured images are used in memory and are not saved or uploaded by the app. Protected screens are excluded. The app has no internet permission, analytics or ads. Do not post private screenshots, device serials or unedited diagnostic logs in public issues.
 
-一部の端末試験は補助処理・オーバーレイ許可・対応実機を前提とします。通常のエミュレーターだけでSamsung固有の角度や両画面制御を確認することはできません。開発用の `ShellSmoke` と `PanelProbe` はdebugビルド専用で、配布用release APKには入りません。
+## License
 
-## 仕組み
-
-1. Shizuku経由の補助処理が純正壁紙から角度を受け取ります。
-2. 開閉前の画面をメモリー内へ保持し、移動先の準備ができるまで画面の連続性を保ちます。
-3. 角度に応じて保持画像へ穏やかな視差変形とぼかしを加えます。
-4. 同じアプリのタスクを移動先へ移し、描画の準備が整った段階で一時画像を外します。
-
-0.1.14では、画像の切り替え付近だけ急にぼかしを強める下限を除去しました。角度に対するぼかし量を連続的にし、ぼかし画像の間も分散に基づいて補間します。視線追跡や、目の位置から算出する厳密な光学投影ではありません。
-
-| 主なコード | 役割 |
-| --- | --- |
-| `ShellBridge` | 権限のある補助処理、角度の入力、画面取得 |
-| `DualDisplayControl` / `TaskDisplayRouter` | 両画面の点灯要求と既存タスクの移動 |
-| `MotionService` / `FoldPolicy` | 待ち受け、開閉の開始・方向転換・終了 |
-| `GlassProjection` / `FoldShader` / `BlurCache` | 視差、ぼかし、描画用画像の補間 |
-| `SnapshotSurface` / `WindowReadiness` | 保持画像の表示とアプリの描画待ち |
-| `InnerNavigation` | 内側の補助操作バーと履歴 |
-| `tools/CoverWallpaperSetup.java` | 対応する純正壁紙を設定する任意の初期設定補助 |
-
-## 画面・権限・プライバシー
-
-使用中のアプリ画面を扱うため、機密情報のある画面でも動作し得ます。必要のないときは停止してください。画像はメモリー内だけで使い、意図的な保存・送信は行いません。保護された画面は取得対象外です。アプリにはインターネット権限がなく、解析SDKや広告SDKも入れていません。
-
-Shizukuでは通常アプリより強い、ADB shell相当の権限を用います。重ねて表示、常駐処理、通知、再起動後の復帰に必要な権限も使用します。Androidのバックアップは無効です。ローカルの診断ログには状態やアプリ識別情報が含まれる場合があるため、そのまま公開しないでください。
-
-## 現在の制約
-
-- 内側の標準ナビゲーション・通知パネルを完全には使えません。補助操作バーで代替しています。
-- 両画面を点灯するため、電池消費が増えます。停止・ロック時は通常の表示制御へ戻します。
-- 開閉中は保持した静止画像を使います。動画やゲームが両画面で連続再生される機能ではありません。
-- ホーム・履歴などのシステム画面は通常アプリと同じ移動対象ではありません。すべての画面で同じ演出になるわけではありません。
-- アプリのサイズ変更・描き直しによって、配置のずれや引き継ぎの乱れが残る可能性があります。
-- Samsungの非公開APIと壁紙の応答に依存するため、OS更新で動かなくなる可能性があります。
-- Samsung独自のセンサー購読権限をShizukuが付与できることや、2系統ジャイロから正確な角度を得られることは確認していません。
-- Shizukuの停止や強制停止から常に自動復帰できるわけではありません。
-
-## ライセンスと変更履歴
-
-自作部分は[MIT](LICENSE)です。依存ライブラリは[第三者のライセンス一覧](THIRD_PARTY_NOTICES.md)に従います。[変更履歴](CHANGELOG.md)と[公開前の確認範囲](docs/publication-audit.md)も参照してください。
-
-不具合報告では、型番、Android/One UI版、Shizuku版、開く時か閉じる時か、再現手順を記載してください。端末シリアル、個人の画面、認証情報、無加工のログは公開Issueへ投稿しないでください。
+Original code: [MIT](LICENSE). See [third-party notices](THIRD_PARTY_NOTICES.md) for dependencies. No Apple or Samsung UI assets, wallpapers or videos are distributed. This project is not affiliated with Apple, Samsung or Shizuku.
