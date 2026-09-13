@@ -1,0 +1,59 @@
+package jp.bunkaich.sukashimotion;
+
+import android.content.Context;
+import android.graphics.*;
+import android.os.SystemClock;
+import android.view.View;
+
+final class SnapshotView extends View {
+    final RuntimeShader shader=new RuntimeShader(FoldShader.CODE);final Paint paint=new Paint(Paint.FILTER_BITMAP_FLAG);
+    FrameTexture frame;final boolean inner,leftOnly;
+    int logicalWidth; private float angle;private FrameTexture rearFrame;private long rearSince;private boolean sharpHold;
+    private final Paint holdPaint=new Paint(Paint.FILTER_BITMAP_FLAG);
+    SnapshotView(Context context,FrameTexture frame,boolean inner,boolean leftOnly){
+        super(context);this.frame=frame;this.inner=inner;this.leftOnly=leftOnly;angle=inner?180:0;paint.setShader(shader);
+        setContentDescription("奥の像を保った開閉中の画面");setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
+        // Do not operate an unseen live app through its temporary frozen image.
+        setOnTouchListener((v,event)->true);
+    }
+    private BitmapShader bitmap(Bitmap bitmap,float sx,float sy,float tx){
+        BitmapShader shader=new BitmapShader(bitmap,Shader.TileMode.CLAMP,Shader.TileMode.CLAMP);shader.setFilterMode(BitmapShader.FILTER_MODE_LINEAR);
+        Matrix matrix=new Matrix();matrix.setScale(sx,sy);matrix.postTranslate(tx,0);shader.setLocalMatrix(matrix);return shader;
+    }
+    @Override protected void onSizeChanged(int w,int h,int oldW,int oldH){bindTextures();}
+    private void bindTextures(){
+        int w=logicalWidth>0?logicalWidth:getWidth(),h=getHeight();if(w==0||h==0)return;
+        shader.setInputShader("content",bitmap(frame.sharp,w/(float)frame.sharp.getWidth(),h/(float)frame.sharp.getHeight(),0));
+        for(int i=0;i<BlurCache.LEVELS.length;i++)shader.setInputShader("rest"+(int)BlurCache.LEVELS[i],bitmap(frame.levels[i],1,1,0));
+        shader.setFloatUniform("cacheScale",frame.levels[0].getWidth()/(float)w,frame.levels[0].getHeight()/(float)h);
+        // Cover sees the SAME right half of the inner snapshot, not an unrelated wallpaper.
+        FrameTexture linked=rearFrame==null?frame:rearFrame;boolean crop=rearFrame!=null;
+        shader.setInputShader("rear",bitmap(linked.sharp,w*(crop?2f:1f)/linked.sharp.getWidth(),h/(float)linked.sharp.getHeight(),crop?-w:0));
+        for(int i=0;i<BlurCache.LEVELS.length;i++)shader.setInputShader("rear"+(int)BlurCache.LEVELS[i],bitmap(linked.levels[i],1,1,crop?-linked.levels[i].getWidth()*.5f:0));
+        shader.setFloatUniform("rearCacheScale",linked.levels[0].getWidth()*(crop?.5f:1f)/w,linked.levels[0].getHeight()/(float)h);
+        shader.setFloatUniform("size",w,h);shader.setFloatUniform("inner",inner?1:0);
+        shader.setFloatUniform("pixelsPerDp",getResources().getDisplayMetrics().density);shader.setFloatUniform("radiusDp",28);
+    }
+    void setFrame(FrameTexture next){frame=next;bindTextures();invalidate();}
+    void setSharpHold(boolean value){sharpHold=value;invalidate();}
+    void afterFrame(Runnable committed){
+        getViewTreeObserver().registerFrameCommitCallback(committed);invalidate();
+    }
+    void setRearFrame(FrameTexture rear,boolean animate){
+        if(inner||rear==rearFrame)return;
+        rearFrame=rear;rearSince=animate?SystemClock.uptimeMillis():0;bindTextures();invalidate();
+    }
+    void setAngle(float value){
+        if(!Float.isFinite(value))return;float next=GlassProjection.clamp(value);
+        if(Math.abs(angle-next)<.00001f)return;angle=next;invalidate();
+    }
+    @Override protected void onDraw(Canvas canvas){
+        if(sharpHold||!frame.prepared){canvas.drawColor(Color.BLACK);canvas.drawBitmap(frame.sharp,null,new Rect(0,0,getWidth(),getHeight()),holdPaint);return;}
+        GlassProjection.Pose pose=GlassProjection.pose(angle,inner);
+        shader.setFloatUniform("pose",pose.expansion(),pose.taper());
+        shader.setFloatUniform("amount",FoldPolicy.blur(angle,inner));
+        float ready=rearSince==0?1:Math.min(1,(SystemClock.uptimeMillis()-rearSince)/160f);ready=ready*ready*(3-2*ready);
+        shader.setFloatUniform("rearBlend",rearFrame==null?0:GlassProjection.rearWeight(angle)*ready);
+        canvas.drawRect(0,0,getWidth(),getHeight(),paint);if(ready<1)postInvalidateOnAnimation();
+    }
+}

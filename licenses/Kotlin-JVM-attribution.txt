@@ -1,0 +1,19 @@
+Kotlin JVM standard library 2.2.10
+Copyright 2010-2024 JetBrains s.r.o. and Kotlin Programming Language contributors.
+Licensed under the Apache License, Version 2.0 (Apache-2.0.txt).
+
+Third-party code identified in the upstream v2.2.10 license/README.md:
+- libraries/stdlib/src/kotlin/collections: derived from GWT,
+  Copyright (C) 2007-08 Google Inc.; Apache License 2.0.
+- libraries/stdlib/src/kotlin/time: Copyright (c) 2007-present,
+  Stephen Colebourne & Michael Nascimento Santos; BSD 3-Clause
+  (Kotlin-ThreeTen-BSD-3-Clause.txt).
+- libraries/stdlib/jvm/src/kotlin/util/UnsignedJVM.kt: derived from Guava,
+  Copyright (C) 2011 The Guava Authors; Apache License 2.0.
+- libraries/stdlib/jvm/src/kotlin/util/MathJVM.kt: derived from Boost special
+  math functions, Copyright Eric Ford & Hubert Holin 2001;
+  Boost Software License 1.0 (Kotlin-Boost-1.0.txt).
+
+Upstream: https://github.com/JetBrains/kotlin/tree/v2.2.10/license
+Only common/JVM runtime notices are applicable here. The Kotlin compiler,
+JS, Wasm, Native runtimes and upstream compiler test data are not bundled.
