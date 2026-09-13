@@ -59,7 +59,7 @@ public class ServiceLifecycleTest {
   Thread.sleep(150);
   ParcelFileDescriptor fd=InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand("dumpsys window");
   String dump;try(InputStream in=new ParcelFileDescriptor.AutoCloseInputStream(fd)){dump=new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);}
-  boolean target=dump.lines().anyMatch(line->line.contains("mWallpaperTarget")&&line.contains("Sukashi angle anchor"));
+  boolean target=dump.lines().anyMatch(line->line.contains("mWallpaperTarget")&&line.contains("Folduo angle anchor"));
   assertTrue("Wallpaper must stay active while a normal opaque activity is in front",target);
  }
  @Test public void screenOffSuspendsAnglesAndWakeRestartsThem()throws Exception{

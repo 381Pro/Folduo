@@ -40,7 +40,7 @@ final class DualDisplayControl implements AutoCloseable {
             switch(m.getName()){
                 case "hashCode":return System.identityHashCode(proxy);
                 case "equals":return proxy==args[0];
-                case "toString":return "SukashiDisplayCallback";
+                case "toString":return "FolduoDisplayCallback";
                 case "onRequestCanceled":synchronized(this){if(owned==next)owned=null;}
             }return null;
         });

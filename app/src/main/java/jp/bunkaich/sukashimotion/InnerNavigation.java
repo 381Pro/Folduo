@@ -24,7 +24,7 @@ final class InnerNavigation {
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL|WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,PixelFormat.TRANSLUCENT);
         p.gravity=Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL;p.y=dp(8);p.setFitInsetsTypes(0);
         p.layoutInDisplayCutoutMode=WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
-        p.setTitle("Sukashi inner navigation");p.windowAnimations=0;
+        p.setTitle("Folduo inner navigation");p.windowAnimations=0;
         if(root!=null)wm.removeViewImmediate(root);root=view;wm.addView(root,p);
     }
     private LinearLayout buttons(){

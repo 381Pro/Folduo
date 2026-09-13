@@ -66,7 +66,7 @@ public final class MotionService extends Service implements DisplayManager.Displ
         PendingIntent stop=PendingIntent.getService(this,1,new Intent(this,MotionService.class).setAction("stop"),PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent open=PendingIntent.getActivity(this,2,new Intent(this,MainActivity.class),PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent restart=PendingIntent.getService(this,3,new Intent(this,MotionService.class).setAction("restart"),PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT);
-        return new Notification.Builder(this,"motion").setSmallIcon(android.R.drawable.ic_menu_view).setContentTitle("透かしモーション").setContentText(text).setStyle(new Notification.BigTextStyle().bigText(text)).setOnlyAlertOnce(true).setOngoing(true).setContentIntent(open).addAction(new Notification.Action.Builder(null,"再開",restart).build()).addAction(new Notification.Action.Builder(null,"停止",stop).build()).build();
+        return new Notification.Builder(this,"motion").setSmallIcon(android.R.drawable.ic_menu_view).setContentTitle(getString(R.string.app_name)).setContentText(text).setStyle(new Notification.BigTextStyle().bigText(text)).setOnlyAlertOnce(true).setOngoing(true).setContentIntent(open).addAction(new Notification.Action.Builder(null,"再開",restart).build()).addAction(new Notification.Action.Builder(null,"停止",stop).build()).build();
     }
     private void updateNotification(){
         String text=status.startsWith("角度 ")?(layoutPrepared?"稼働中 · 開閉に合わせてアニメーションします":"一度完全に閉じると準備が完了します"):status;
@@ -318,7 +318,7 @@ public final class MotionService extends Service implements DisplayManager.Displ
         // Android caps non-touchable APPLICATION_OVERLAY windows to alpha 0.8. A
         // frozen image must instead consume touches until removal, keeping alpha 1.
         // The angle-only anchors remain non-touchable and transparent below.
-        lp.alpha=1;lp.setTitle("Sukashi fold snapshot");lp.preferredRefreshRate=120;lp.windowAnimations=0;return lp;
+        lp.alpha=1;lp.setTitle("Folduo fold snapshot");lp.preferredRefreshRate=120;lp.windowAnimations=0;return lp;
     }
     private static WindowManager.LayoutParams layout(int w,int h){
         WindowManager.LayoutParams lp=new WindowManager.LayoutParams(w,h,WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN|WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,PixelFormat.TRANSLUCENT);
@@ -431,7 +431,7 @@ public final class MotionService extends Service implements DisplayManager.Displ
             try{
                 Context context=createDisplayContext(panel.display).createWindowContext(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,null);
                 WindowManager wm=context.getSystemService(WindowManager.class);View view=new View(context);view.setBackgroundColor(Color.TRANSPARENT);
-                WindowManager.LayoutParams lp=layout(WindowManager.LayoutParams.MATCH_PARENT,WindowManager.LayoutParams.MATCH_PARENT);lp.flags|=WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE|WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER;lp.alpha=.01f;lp.setTitle("Sukashi angle anchor");
+                WindowManager.LayoutParams lp=layout(WindowManager.LayoutParams.MATCH_PARENT,WindowManager.LayoutParams.MATCH_PARENT);lp.flags|=WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE|WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER;lp.alpha=.01f;lp.setTitle("Folduo angle anchor");
                 wm.addView(view,lp);next.add(new Anchor(wm,view,WallpaperManager.getInstance(context)));
             }catch(Exception e){anchorError=ShellBridge.message(e);}
         }

@@ -21,8 +21,8 @@ public final class MainActivity extends Activity {
         getWindow().setNavigationBarColor(Color.rgb(16,23,20));
         ScrollView scroll=new ScrollView(this);LinearLayout page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setPadding(dp(24),dp(28),dp(24),dp(40));scroll.addView(page);
         scroll.setOnApplyWindowInsetsListener((v,insets)->{android.graphics.Insets i=insets.getInsets(WindowInsets.Type.systemBars()|WindowInsets.Type.displayCutout());v.setPadding(i.left,i.top,i.right,i.bottom);return insets;});
-        label(page,"透かしモーション",30,Color.WHITE);label(page,"いつものアプリを、開閉の向こうへ。",17,0xffb3eed4);
-        label(page,"既存の透かしランチャーと共存する別アプリです。開閉中の像を奥に残し、手前の液晶がすりガラスとして動くように描きます。開始後に一度閉じると準備が完了します。使用中は前面を主画面に固定し、アプリだけを内外へ移します。開閉中の像を保ち、表示が整ってから元のアプリへつなぎます。",15,0xffc5d3cd);
+        label(page,getString(R.string.app_name),30,Color.WHITE);label(page,"いつものアプリを、開閉の向こうへ。",17,0xffb3eed4);
+        label(page,"既存のランチャーと共存する開閉演出アプリです。開閉中の像を奥に残し、手前の液晶がすりガラスとして動くように描きます。開始後に一度閉じると準備が完了します。使用中は前面を主画面に固定し、アプリだけを内外へ移します。開閉中の像を保ち、表示が整ってから元のアプリへつなぎます。",15,0xffc5d3cd);
         state=label(page,"",15,0xffb3eed4);
         button(page,"見え方を試す",()->startActivity(new Intent(this,PreviewActivity.class)));
         label(page,"開いた画面の操作",21,Color.WHITE);

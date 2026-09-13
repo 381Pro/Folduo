@@ -2,13 +2,13 @@
 
 English | [日本語](README.ja.md)
 
-# Sukashi Motion
+# Folduo
 
 I built this out of curiosity. I don't plan to actively develop or maintain it. I may make changes if something sparks my interest, but otherwise expect this repository to remain mostly untouched.
 
 An experimental Galaxy Z Fold7 app that uses hinge angle to create a frosted-glass transition between the cover and inner screens. It holds an app's image in place with parallax and blur while the phone folds, then hands over to the app on the other display. It works with regular apps without replacing your launcher.
 
-[Download v0.1.14](https://github.com/bunkaich/sukashi-motion/releases/tag/v0.1.14)
+[Download v0.1.15](https://github.com/bunkaich/Folduo/releases/tag/v0.1.15)
 
 ## Requirements
 
@@ -31,11 +31,11 @@ Follow the [official setup guide](https://shizuku.rikka.app/guide/setup/) to ins
 
 Fine-grained angles come from Samsung's interactive wallpaper through a Shizuku helper. On the tested device, the standard hinge sensor mainly reported 0°, 90° and 180°. This app does not estimate the angle using two gyroscopes.
 
-1. Stop Sukashi Motion and any other fold-animation or display-control helpers.
+1. Stop Folduo and any other fold-animation or display-control helpers.
 2. Set the inner home screen to the Samsung stock interactive wallpaper identified internally as `video_002.mp4`. The cover home screen must use its matching stock image, `sub_wallpaper_002`. Wallpaper names in Settings vary by OS version.
 3. To get fine-grained angles on the cover screen too, use the helper below to apply the same stock interactive wallpaper there. **This changes the cover home wallpaper in One UI as well.** Keep your original wallpaper if you want to restore it later.
 
-Download and extract `sukashi-wallpaper-setup-0.1.14.zip` from the release. Install Python 3 and Android SDK platform-tools (ADB). Connect one phone with USB debugging authorized, then run these commands in the extracted folder:
+Download and extract `folduo-wallpaper-setup-0.1.15.zip` from the release. Install Python 3 and Android SDK platform-tools (ADB). Connect one phone with USB debugging authorized, then run these commands in the extracted folder:
 
 ```sh
 python3 cover-wallpaper.py status
@@ -56,8 +56,8 @@ python3 tools/cover-wallpaper.py apply
 
 ### 3. Install and start the app
 
-1. Install `Sukashi-Motion-0.1.14.apk` from the release. With ADB: `adb install -r Sukashi-Motion-0.1.14.apk`.
-2. Open **透かしモーション**, tap **Shizukuを接続** (Connect Shizuku), and grant access.
+1. Install `Folduo-0.1.15.apk` from the release. With ADB: `adb install -r Folduo-0.1.15.apk`.
+2. Open **Folduo**, tap **Shizukuを接続** (Connect Shizuku), and grant access.
 3. Tap **重ねて表示を許可** (Allow display over other apps). Allow notifications too.
 4. Read the screen-capture explanation, then tap **画面の一時利用に同意して常時有効にする** (Consent to temporary screen use and enable).
 5. With the phone unlocked, close it fully once to initialize. Open an app such as Calculator and slowly fold and unfold the phone.
@@ -94,9 +94,9 @@ Use Git, JDK 17 and the Android SDK. Set `JAVA_HOME` to your JDK and `ANDROID_HO
 sdkmanager "platforms;android-37.0" "build-tools;36.0.0" "platform-tools"
 sdkmanager --licenses
 
-git clone https://github.com/bunkaich/sukashi-motion.git
-cd sukashi-motion
-git checkout v0.1.14
+git clone https://github.com/bunkaich/Folduo.git
+cd Folduo
+git checkout v0.1.15
 ./gradlew :app:assembleRelease :app:testDebugUnitTest :app:lintRelease
 ```
 
@@ -104,9 +104,11 @@ Output: `app/build/outputs/apk/release/app-release.apk`. Use `gradlew.bat` on Wi
 
 The wrapper pins Gradle 9.5.1 and verifies its checksum. AGP is 9.2.1; compile SDK is 37, target SDK is 36, and minimum SDK is 33. Initial builds need internet access to download dependencies. The wallpaper helper also needs Python 3.
 
+Folduo can be installed over Sukashi Motion 0.1.14 without uninstalling it. The package ID and signing certificate are unchanged.
+
 The release APK uses the existing experimental debug signing certificate. Signing keys are not published. Your own build uses your local certificate and cannot directly replace the release APK. Stop and uninstall the existing app before switching signatures; settings and permissions will need to be configured again. Uninstalling does not restore the wallpaper.
 
-Release downloads include `SHA256SUMS`. Compare the APK with `shasum -a 256 Sukashi-Motion-0.1.14.apk` on macOS or `sha256sum Sukashi-Motion-0.1.14.apk` on Linux.
+Release downloads include `SHA256SUMS`. Compare the APK with `shasum -a 256 Folduo-0.1.15.apk` on macOS or `sha256sum Folduo-0.1.15.apk` on Linux.
 
 ## Screen access
 

@@ -9,7 +9,7 @@ final class NavigationInput {
         Class<?> wm=Class.forName("android.view.IWindowManager");
         Object binder=Class.forName("android.os.ServiceManager").getMethod("getService",String.class).invoke(null,"window");
         Object window=Class.forName(wm.getName()+"$Stub").getMethod("asInterface",android.os.IBinder.class).invoke(null,binder);
-        wm.getMethod("moveDisplayToTop",int.class,String.class).invoke(window,display,"Sukashi user navigation");
+        wm.getMethod("moveDisplayToTop",int.class,String.class).invoke(window,display,"Folduo user navigation");
         Class<?> api=Class.forName("android.hardware.input.InputManagerGlobal");
         Object manager=api.getMethod("getInstance").invoke(null);
         long now=SystemClock.uptimeMillis();boolean accepted=true;
