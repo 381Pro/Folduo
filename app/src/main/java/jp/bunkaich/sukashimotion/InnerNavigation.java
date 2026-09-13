@@ -30,7 +30,7 @@ final class InnerNavigation {
     private LinearLayout buttons(){
         LinearLayout row=new LinearLayout(context);row.setGravity(Gravity.CENTER);row.setPadding(dp(8),dp(4),dp(8),dp(4));row.setBackground(background(0xee22252c,26));
         int[] keys={KeyEvent.KEYCODE_APP_SWITCH,KeyEvent.KEYCODE_HOME,KeyEvent.KEYCODE_BACK,SETTINGS};
-        String[] labels={"最近使ったアプリ","ホーム","戻る","設定"};
+        String[] labels={context.getString(R.string.nav_recents),context.getString(R.string.nav_home),context.getString(R.string.nav_back),context.getString(R.string.nav_settings)};
         for(int i=0;i<keys.length;i++){
             int key=keys[i];NavButton button=new NavButton(context,key);button.setContentDescription(labels[i]);
             button.setOnClickListener(v->{
@@ -47,11 +47,11 @@ final class InnerNavigation {
         recents=true;previews.clear();
         LinearLayout panel=new LinearLayout(context);panel.setOrientation(LinearLayout.VERTICAL);panel.setPadding(dp(14),dp(14),dp(14),dp(8));panel.setBackground(background(0xfa191c22,26));
         LinearLayout heading=new LinearLayout(context);heading.setGravity(Gravity.CENTER_VERTICAL);
-        TextView title=new TextView(context);title.setText("最近使ったアプリ");title.setTextSize(19);title.setTextColor(Color.WHITE);heading.addView(title,new LinearLayout.LayoutParams(0,dp(40),1));
-        Button close=new Button(context);close.setText("閉じる");close.setOnClickListener(v->collapse());heading.addView(close);panel.addView(heading);
+        TextView title=new TextView(context);title.setText(context.getString(R.string.nav_recents));title.setTextSize(19);title.setTextColor(Color.WHITE);heading.addView(title,new LinearLayout.LayoutParams(0,dp(40),1));
+        Button close=new Button(context);close.setText(context.getString(R.string.close));close.setOnClickListener(v->collapse());heading.addView(close);panel.addView(heading);
         ScrollView scroll=new ScrollView(context);LinearLayout list=new LinearLayout(context);list.setOrientation(LinearLayout.VERTICAL);scroll.addView(list);
         int panelWidth=Math.min(width-dp(32),dp(680));int cardWidth=(panelWidth-dp(44))/2;
-        if(apps.isEmpty()){TextView empty=new TextView(context);empty.setText("最近使ったアプリはありません");empty.setTextColor(Color.WHITE);empty.setPadding(dp(12),dp(32),dp(12),dp(32));list.addView(empty);}
+        if(apps.isEmpty()){TextView empty=new TextView(context);empty.setText(context.getString(R.string.no_recent_apps));empty.setTextColor(Color.WHITE);empty.setPadding(dp(12),dp(32),dp(12),dp(32));list.addView(empty);}
         LinearLayout row=null;
         for(int i=0;i<apps.size();i++){
             Bundle app=apps.get(i);int task=app.getInt("taskId",-1);String label=app.getString("label","");

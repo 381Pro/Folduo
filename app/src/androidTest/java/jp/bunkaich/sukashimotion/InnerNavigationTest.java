@@ -16,19 +16,19 @@ public class InnerNavigationTest {
  @Before public void start(){Context c=InstrumentationRegistry.getInstrumentation().getTargetContext();activity=InstrumentationRegistry.getInstrumentation().startActivitySync(new Intent(c,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));ui(()->nav=new InnerNavigation(activity.createWindowContext(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,null),0,1968,2184,(a,t)->{action=a;task=t;}));}
  @After public void stop(){ui(()->{nav.close();activity.finish();});}
  @Test public void controlsAreImmediatelyAvailableAndSettingsIsDistinct()throws Exception{
-  View row=root();assertNotNull(find(row,"戻る"));assertNotNull(find(row,"ホーム"));assertNotNull(find(row,"最近使ったアプリ"));ui(()->find(row,"設定").performClick());assertEquals(InnerNavigation.SETTINGS,action);
+  View row=root();assertNotNull(find(row,activity.getString(R.string.nav_back)));assertNotNull(find(row,activity.getString(R.string.nav_home)));assertNotNull(find(row,activity.getString(R.string.nav_recents)));ui(()->find(row,activity.getString(R.string.nav_settings)).performClick());assertEquals(InnerNavigation.SETTINGS,action);
  }
  @Test public void cardSelectsExistingTaskAndClosesOnlyThePanel()throws Exception{
-  Bundle app=new Bundle();app.putInt("taskId",27);app.putString("label","電卓");ui(()->nav.showRecent(List.of(app)));View row=root();ui(()->find(row,"電卓").performClick());assertEquals(0,action);assertEquals(27,task);assertFalse(nav.showingRecents());assertNotNull(find(root(),"戻る"));
+  Bundle app=new Bundle();app.putInt("taskId",27);app.putString("label","電卓");ui(()->nav.showRecent(List.of(app)));View row=root();ui(()->find(row,"電卓").performClick());assertEquals(0,action);assertEquals(27,task);assertFalse(nav.showingRecents());assertNotNull(find(root(),activity.getString(R.string.nav_back)));
  }
  @Test public void backInRecentsDoesNotCloseUnderlyingApp()throws Exception{
-  ui(()->nav.showRecent(List.of()));View row=root();ui(()->find(row,"戻る").performClick());assertEquals(-1,action);assertFalse(nav.showingRecents());
+  ui(()->nav.showRecent(List.of()));View row=root();ui(()->find(row,activity.getString(R.string.nav_back)).performClick());assertEquals(-1,action);assertFalse(nav.showingRecents());
  }
  @Test public void controlsNeverRequestAppResizingOrKeyboardFocus()throws Exception{
   WindowManager.LayoutParams p=(WindowManager.LayoutParams)root().getLayoutParams();assertTrue((p.flags&WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)!=0);assertEquals(0,p.getFitInsetsTypes());assertEquals(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,p.type);
  }
  @Test public void latePreviewCannotReopenDismissedPanel()throws Exception{
-  ui(()->nav.showRecent(List.of()));View row=root();ui(()->find(row,"戻る").performClick());ui(()->nav.setPreview(4,Bitmap.createBitmap(2,2,Bitmap.Config.ARGB_8888)));assertFalse(nav.showingRecents());
+  ui(()->nav.showRecent(List.of()));View row=root();ui(()->find(row,activity.getString(R.string.nav_back)).performClick());ui(()->nav.setPreview(4,Bitmap.createBitmap(2,2,Bitmap.Config.ARGB_8888)));assertFalse(nav.showingRecents());
  }
  @Test public void closingRemovesTouchableWindow()throws Exception{View before=root();ui(()->nav.close());assertFalse(before.isAttachedToWindow());assertNull(root());}
 }

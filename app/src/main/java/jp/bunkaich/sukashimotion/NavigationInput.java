@@ -18,6 +18,6 @@ final class NavigationInput {
             KeyEvent.class.getMethod("setDisplayId",int.class).invoke(event,display);
             accepted&=(boolean)api.getMethod("injectInputEvent",InputEvent.class,int.class).invoke(manager,event,2);
         }
-        if(!accepted)throw new IllegalStateException("戻る操作が受け付けられませんでした");
+        if(!accepted)throw new IllegalStateException("@folduo/err_back_rejected");
     }
 }

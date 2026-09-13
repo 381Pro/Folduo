@@ -12,7 +12,7 @@ final class SnapshotView extends View {
     private final Paint holdPaint=new Paint(Paint.FILTER_BITMAP_FLAG);
     SnapshotView(Context context,FrameTexture frame,boolean inner,boolean leftOnly){
         super(context);this.frame=frame;this.inner=inner;this.leftOnly=leftOnly;angle=inner?180:0;paint.setShader(shader);
-        setContentDescription("奥の像を保った開閉中の画面");setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
+        setContentDescription(context.getString(R.string.snapshot_description));setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
         // Do not operate an unseen live app through its temporary frozen image.
         setOnTouchListener((v,event)->true);
     }

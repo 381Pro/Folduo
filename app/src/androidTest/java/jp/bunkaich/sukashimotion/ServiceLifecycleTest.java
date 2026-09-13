@@ -53,7 +53,7 @@ public class ServiceLifecycleTest {
   // not arm OUTER_DEFAULT until the normal cover mapping really exists.
   for(float angle:new float[]{180,120,0,0,90,180})bridge.sink.angle(angle,SystemClock.elapsedRealtime(),3);
   Thread.sleep(250);assertEquals(0,bridge.captures);assertEquals(0,bridge.moves);assertEquals(0,bridge.holds);
-  assertEquals("一度閉じると準備が完了します",MotionService.status);
+  assertTrue(MotionService.status.is(R.string.close_to_prepare));
  }
  @Test public void transparentAnchorBecomesWallpaperTargetBehindOpaqueApp()throws Exception{
   Thread.sleep(150);
@@ -73,16 +73,16 @@ public class ServiceLifecycleTest {
   bridge=new FakeBridge();BridgeConnection.bridge=bridge;
   waitFor(()->bridge.sink!=null&&previous.sink==null);
   oldSink.angle(99,SystemClock.elapsedRealtime(),1);Thread.sleep(100);
-  assertFalse("Old callbacks must not feed the new connection",MotionService.status.contains("99°"));
-  bridge.sink.angle(120,SystemClock.elapsedRealtime(),1);waitFor(()->MotionService.status.contains("一度閉じる"));
+  assertFalse("Old callbacks must not feed the new connection",MotionService.status.resolve(context).contains("99°"));
+  bridge.sink.angle(120,SystemClock.elapsedRealtime(),1);waitFor(()->MotionService.status.is(R.string.close_to_prepare));
  }
  @Test public void stoppedAngleReaderRecoversWithoutRestartingApplication()throws Exception{
   int initial=bridge.starts;bridge.sink.angle(120,SystemClock.elapsedRealtime(),1);
-  waitFor(()->MotionService.status.contains("一度閉じる"));
+  waitFor(()->MotionService.status.is(R.string.close_to_prepare));
   long deadline=SystemClock.elapsedRealtime()+8000;
   while(bridge.starts==initial&&SystemClock.elapsedRealtime()<deadline)Thread.sleep(50);
   assertTrue("A live binder with a stalled reader must be re-subscribed",bridge.starts>initial);
-  assertTrue(MotionService.running);assertTrue(MotionSettings.recovery(context).contains("角度"));
+  assertTrue(MotionService.running);assertTrue(MotionSettings.recovery(context).equals(context.getString(R.string.angle_recovery)));
  }
  @Test public void slowScreenOffCleanupCannotStopNewWakeSubscription()throws Exception{
   bridge.stopEntered=new CountDownLatch(1);bridge.allowStop=new CountDownLatch(1);

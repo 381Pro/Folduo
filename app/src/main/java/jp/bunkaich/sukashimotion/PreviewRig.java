@@ -12,7 +12,7 @@ final class PreviewRig extends FrameLayout {
     PreviewRig(Context context,SnapshotView snapshot,FrameTexture innerFrame){
         super(context);this.snapshot=snapshot;this.innerFrame=innerFrame;angle=snapshot.inner?180:0;
         addView(snapshot,new LayoutParams(-1,-1));outline.setStyle(Paint.Style.STROKE);outline.setStrokeWidth(2);outline.setColor(0xff9da8aa);
-        setContentDescription("回転する液晶と、奥に残る像のデモ");
+        setContentDescription(context.getString(R.string.rig_description));
     }
     void setAngle(float value){angle=value;snapshot.setAngle(value);invalidate();}
     void setPhysical(boolean value){physical=value;invalidate();}

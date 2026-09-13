@@ -8,7 +8,7 @@ I built this out of curiosity. I don't plan to actively develop or maintain it. 
 
 An experimental Galaxy Z Fold7 app that uses hinge angle to create a frosted-glass transition between the cover and inner screens. It holds an app's image in place with parallax and blur while the phone folds, then hands over to the app on the other display. It works with regular apps without replacing your launcher.
 
-[Download v0.1.15](https://github.com/bunkaich/Folduo/releases/tag/v0.1.15)
+[Download v0.1.16](https://github.com/bunkaich/Folduo/releases/tag/v0.1.16)
 
 ## Requirements
 
@@ -21,7 +21,7 @@ No root required. Once set up, it can run without USB if Shizuku is started thro
 
 ## Setup
 
-The app's interface is currently in Japanese.
+Folduo supports English and Japanese. At the top of the app, tap **Language / 言語** and choose **English**, **日本語**, or **System default**. The choice is saved and also appears in Android’s app language settings. Japanese devices use Japanese by default; other devices use English.
 
 ### 1. Start Shizuku
 
@@ -35,7 +35,7 @@ Fine-grained angles come from Samsung's interactive wallpaper through a Shizuku 
 2. Set the inner home screen to the Samsung stock interactive wallpaper identified internally as `video_002.mp4`. The cover home screen must use its matching stock image, `sub_wallpaper_002`. Wallpaper names in Settings vary by OS version.
 3. To get fine-grained angles on the cover screen too, use the helper below to apply the same stock interactive wallpaper there. **This changes the cover home wallpaper in One UI as well.** Keep your original wallpaper if you want to restore it later.
 
-Download and extract `folduo-wallpaper-setup-0.1.15.zip` from the release. Install Python 3 and Android SDK platform-tools (ADB). Connect one phone with USB debugging authorized, then run these commands in the extracted folder:
+Download and extract `folduo-wallpaper-setup-0.1.16.zip` from the release. Install Python 3 and Android SDK platform-tools (ADB). Connect one phone with USB debugging authorized, then run these commands in the extracted folder:
 
 ```sh
 python3 cover-wallpaper.py status
@@ -56,10 +56,10 @@ python3 tools/cover-wallpaper.py apply
 
 ### 3. Install and start the app
 
-1. Install `Folduo-0.1.15.apk` from the release. With ADB: `adb install -r Folduo-0.1.15.apk`.
-2. Open **Folduo**, tap **Shizukuを接続** (Connect Shizuku), and grant access.
-3. Tap **重ねて表示を許可** (Allow display over other apps). Allow notifications too.
-4. Read the screen-capture explanation, then tap **画面の一時利用に同意して常時有効にする** (Consent to temporary screen use and enable).
+1. Install `Folduo-0.1.16.apk` from the release. With ADB: `adb install -r Folduo-0.1.16.apk`.
+2. Open **Folduo**, tap **Connect Shizuku**, and grant access.
+3. Tap **Allow display over other apps**. Allow notifications too.
+4. Read the screen-capture explanation, then tap **Allow temporary screen access and enable**.
 5. With the phone unlocked, close it fully once to initialize. Open an app such as Calculator and slowly fold and unfold the phone.
 
 ## Controls and limitations
@@ -74,8 +74,8 @@ The cover screen uses Samsung's normal navigation. The inner screen has a small 
 
 ## Stop and restore
 
-- **Stop:** open the app and tap **停止して画面制御を解除** (Stop and release display control). Do this before uninstalling.
-- **Resume:** make sure Shizuku is running, then use **再開** in the notification or **アニメーションを再開** in the app. Unlock and close the phone fully once.
+- **Stop:** open the app and tap **Stop and release display control**. Do this before uninstalling.
+- **Resume:** make sure Shizuku is running, then use **Resume** in the notification or **Resume animation** in the app. Unlock and close the phone fully once.
 - **After a reboot:** start Shizuku again, then resume the app if needed.
 - **If the display or controls get stuck:** close the phone and stop the app from the cover screen. If that is not possible, reboot and disable the app's always-on mode before restarting Shizuku.
 - **Restore your wallpaper:** stop the app and choose a wallpaper in Android Settings. To restore the specific stock cover image changed by the helper, run this in the extracted helper folder:
@@ -96,7 +96,7 @@ sdkmanager --licenses
 
 git clone https://github.com/bunkaich/Folduo.git
 cd Folduo
-git checkout v0.1.15
+git checkout v0.1.16
 ./gradlew :app:assembleRelease :app:testDebugUnitTest :app:lintRelease
 ```
 
@@ -108,7 +108,7 @@ Folduo can be installed over Sukashi Motion 0.1.14 without uninstalling it. The 
 
 The release APK uses the existing experimental debug signing certificate. Signing keys are not published. Your own build uses your local certificate and cannot directly replace the release APK. Stop and uninstall the existing app before switching signatures; settings and permissions will need to be configured again. Uninstalling does not restore the wallpaper.
 
-Release downloads include `SHA256SUMS`. Compare the APK with `shasum -a 256 Folduo-0.1.15.apk` on macOS or `sha256sum Folduo-0.1.15.apk` on Linux.
+Release downloads include `SHA256SUMS`. Compare the APK with `shasum -a 256 Folduo-0.1.16.apk` on macOS or `sha256sum Folduo-0.1.16.apk` on Linux.
 
 ## Screen access
 

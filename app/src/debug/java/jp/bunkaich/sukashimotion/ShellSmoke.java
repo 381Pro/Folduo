@@ -6,7 +6,7 @@ public final class ShellSmoke {
  public static void main(String[] args)throws Exception{
   Looper.prepareMainLooper();ShellBridge bridge=new ShellBridge();
   bridge.startAngles(new IAngleSink.Stub(){public void angle(float a,long t,int source){}});
-  Thread.sleep(1500);bridge.heartbeat();Bundle report=bridge.inspect();System.out.println("SENSORS "+MainActivity.formatReport(report));
+  Thread.sleep(1500);bridge.heartbeat();Bundle report=bridge.inspect();System.out.println("SENSORS "+report);
   Bundle capture=bridge.capture(0);Bitmap frame=capture.getParcelable("frame",Bitmap.class);
   if(frame==null)System.out.println("CAPTURE_ERROR "+capture.getString("error"));else{
    // Exercise the actual Bitmap parcel round trip used by the Shizuku binder.

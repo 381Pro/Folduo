@@ -39,22 +39,22 @@ final class TaskDisplayRouter {
     }
     synchronized void showHome(int display)throws Exception{
         Object root=home(display);if(root==null)root=home(display==0?1:0);
-        if(root==null)throw new IllegalStateException("ホーム画面が見つかりません");
+        if(root==null)throw new IllegalStateException("@folduo/err_home_missing");
         moveHome(root,display,true);
     }
     private List<?> tasks(int display)throws Exception{return (List<?>)api.getMethod("getTasks",int.class,boolean.class,boolean.class,int.class).invoke(manager,1,false,false,display);}
     synchronized Bundle move(int source,int destination,boolean idle)throws Exception{
         Bundle result=new Bundle();List<?> tasks=tasks(source);
         if(!tasks.isEmpty()&&activityType(tasks.get(0))==2){
-            Object root=home(source);if(root==null)throw new IllegalStateException("移動するホームが見つかりません");
+            Object root=home(source);if(root==null)throw new IllegalStateException("@folduo/err_source_home_missing");
             moveHome(root,destination,true);result.putBoolean("ok",true);result.putBoolean("moved",true);result.putBoolean("home",true);return result;
         }
         if(tasks.isEmpty()||!standard(tasks.get(0))){
             if(idle){result.putBoolean("ok",true);return result;}
-            throw new UnsupportedOperationException("この画面は通常アプリの移動に対応していません");
+            throw new UnsupportedOperationException("@folduo/err_system_screen");
         }
         Object task=tasks.get(0);int id=number(task,"taskId");
-        if(number(task,"displayId")!=source)throw new IllegalStateException("アプリの表示先が変わりました");
+        if(number(task,"displayId")!=source)throw new IllegalStateException("@folduo/err_app_moved");
         // Recents restarts the existing task on its destination. A bare reparent left it undrawn
         // on this Fold7. The framework still checks launch/display and task restrictions.
         Bundle options=ActivityOptions.makeBasic().setLaunchDisplayId(destination).toBundle();
@@ -85,7 +85,7 @@ final class TaskDisplayRouter {
         for(Object task:(List<?>)slice.getClass().getMethod("getList").invoke(slice))if(number(task,"taskId")==taskId&&standard(task)){
             api.getMethod("startActivityFromRecents",int.class,Bundle.class).invoke(manager,taskId,ActivityOptions.makeBasic().setLaunchDisplayId(display).toBundle());lastDestination=display;movedTasks.add(taskId);focusTop(display);return;
         }
-        throw new IllegalStateException("選択したアプリは終了しています");
+        throw new IllegalStateException("@folduo/err_app_finished");
     }
     synchronized void focusTop(int display)throws Exception{
         List<?> top=tasks(display);if(top.isEmpty())return;
@@ -109,7 +109,7 @@ final class TaskDisplayRouter {
             context.startActivity(intent,ActivityOptions.makeBasic().setLaunchDisplayId(0).toBundle());
             for(int i=0;i<20&&task<0;i++){android.os.SystemClock.sleep(50);task=settingsTask();}
         }
-        if(task<0)throw new IllegalStateException("設定アプリの起動を確認できませんでした");
+        if(task<0)throw new IllegalStateException("@folduo/err_settings_missing");
         selectRecent(task,display);lastDestination=display;
     }
     synchronized android.graphics.Bitmap preview(int taskId)throws Exception{

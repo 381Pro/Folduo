@@ -10,7 +10,7 @@ final class DualDisplayControl implements AutoCloseable {
     final Object manager,service;final Class<?> requestType,callbackType;final Method request,cancel,read;
     final int innerState,outerState;private Object owned;
     DualDisplayControl()throws Exception{
-        if(!"SM-F966Z".equals(Build.MODEL))throw new UnsupportedOperationException("This build targets Fold7 SM-F966Z");
+        if(!"SM-F966Z".equals(Build.MODEL))throw new UnsupportedOperationException("@folduo/err_wrong_model");
         Class<?> type=Class.forName("android.hardware.devicestate.DeviceStateManager");
         manager=type.getConstructor().newInstance();int inner=-1,outer=-1;
         for(Object state:(List<?>)type.getMethod("getSupportedDeviceStates").invoke(manager)){
@@ -19,7 +19,7 @@ final class DualDisplayControl implements AutoCloseable {
             if("CONCURRENT_INNER_DEFAULT".equals(name)&&(boolean)s.getMethod("hasProperty",int.class).invoke(state,12))inner=id;
             if("CONCURRENT_OUTER_DEFAULT".equals(name)&&(boolean)s.getMethod("hasProperty",int.class).invoke(state,11))outer=id;
         }
-        if(inner<0||outer<0)throw new UnsupportedOperationException("Concurrent display states unavailable");
+        if(inner<0||outer<0)throw new UnsupportedOperationException("@folduo/err_states_unavailable");
         innerState=inner;outerState=outer;
         requestType=Class.forName("android.hardware.devicestate.DeviceStateRequest");callbackType=Class.forName("android.hardware.devicestate.DeviceStateRequest$Callback");
         request=type.getMethod("requestState",requestType,Executor.class,callbackType);cancel=type.getMethod("cancelStateRequest");
@@ -28,12 +28,12 @@ final class DualDisplayControl implements AutoCloseable {
         read=Class.forName("android.hardware.devicestate.IDeviceStateManager").getMethod("getDeviceStateInfo");
     }
     int id(Object info,String field)throws Exception {Object state=info.getClass().getField(field).get(info);return (int)state.getClass().getMethod("getIdentifier").invoke(state);}
-    String describe()throws Exception{Object info=read.invoke(service);return "内側優先="+innerState+" / 外側優先="+outerState+" / 現在="+id(info,"currentState")+" / 基本="+id(info,"baseState");}
+    String describe()throws Exception{Object info=read.invoke(service);return "inner="+innerState+" / cover="+outerState+" / current="+id(info,"currentState")+" / base="+id(info,"baseState");}
     synchronized boolean isOwned(){return owned!=null;}
     synchronized void hold(boolean inner,int previousOwner)throws Exception{
         Object info=read.invoke(service);
         int desired=inner?innerState:outerState;
-        if(owned==null&&id(info,"currentState")!=id(info,"baseState")&&!recoverable(previousOwner,desired))throw new IllegalStateException("他の処理が画面を制御しています。元のランチャーの補助処理が動いていないか確認してください");
+        if(owned==null&&id(info,"currentState")!=id(info,"baseState")&&!recoverable(previousOwner,desired))throw new IllegalStateException("@folduo/err_display_conflict");
         Object builder=requestType.getMethod("newBuilder",int.class).invoke(null,inner?innerState:outerState);
         Object next=builder.getClass().getMethod("build").invoke(builder);
         Object callback=Proxy.newProxyInstance(callbackType.getClassLoader(),new Class<?>[]{callbackType},(proxy,m,args)->{

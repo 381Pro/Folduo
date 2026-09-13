@@ -9,6 +9,6 @@ public final class RestartReceiver extends BroadcastReceiver {
         if(!Intent.ACTION_BOOT_COMPLETED.equals(action)&&!Intent.ACTION_MY_PACKAGE_REPLACED.equals(action))return;
         if(!MotionSettings.enabled(context))return;
         try{context.startForegroundService(new Intent(context,MotionService.class).setAction("restore"));}
-        catch(RuntimeException e){MotionSettings.recovery(context,"自動再開をAndroidが保留しました。「アニメーションを再開」を押してください。");}
+        catch(RuntimeException e){MotionSettings.recovery(context,UiText.of(R.string.restore_deferred));}
     }
 }

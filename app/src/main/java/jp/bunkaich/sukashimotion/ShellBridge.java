@@ -40,7 +40,7 @@ public final class ShellBridge extends IShellBridge.Stub {
     }
     private void authorize(){
         int caller=Binder.getCallingUid();
-        if(caller!=appUid && caller!=android.os.Process.myUid())throw new SecurityException("Unexpected caller");
+        if(caller!=appUid && caller!=android.os.Process.myUid())throw new SecurityException("@folduo/err_unexpected_caller");
     }
     static String message(Throwable e){
         while(e.getCause()!=null)e=e.getCause();
@@ -125,14 +125,14 @@ public final class ShellBridge extends IShellBridge.Stub {
     private synchronized DualDisplayControl control()throws Exception{if(displayControl==null)displayControl=new DualDisplayControl();return displayControl;}
     @Override public synchronized Bundle hold(boolean innerPrimary,int previousOwner){
         authorize();long token=Binder.clearCallingIdentity();Bundle result=new Bundle();
-        try{if(sink==null)throw new IllegalStateException("Angle session stopped");control().hold(innerPrimary,previousOwner);result.putInt("ownerPid",android.os.Process.myPid());result.putBoolean("ok",true);}catch(Exception e){result.putString("error",message(e));}
+        try{if(sink==null)throw new IllegalStateException("@folduo/err_angle_stopped");control().hold(innerPrimary,previousOwner);result.putInt("ownerPid",android.os.Process.myPid());result.putBoolean("ok",true);}catch(Exception e){result.putString("error",message(e));}
         finally{Binder.restoreCallingIdentity(token);}return result;
     }
     @Override public synchronized Bundle moveApp(int sourceDisplayId,int targetDisplayId,boolean idle){
         authorize();long token=Binder.clearCallingIdentity();Bundle result=new Bundle();
         try{
-            if(sink==null||displayControl==null||!displayControl.isOwned())throw new IllegalStateException("両画面の制御が停止しています");
-            if((sourceDisplayId!=0&&sourceDisplayId!=1)||(targetDisplayId!=0&&targetDisplayId!=1)||sourceDisplayId==targetDisplayId)throw new IllegalArgumentException("Built-in distinct displays required");
+            if(sink==null||displayControl==null||!displayControl.isOwned())throw new IllegalStateException("@folduo/err_control_stopped");
+            if((sourceDisplayId!=0&&sourceDisplayId!=1)||(targetDisplayId!=0&&targetDisplayId!=1)||sourceDisplayId==targetDisplayId)throw new IllegalArgumentException("@folduo/err_distinct_displays");
             if(taskRouter==null)taskRouter=new TaskDisplayRouter();
             return taskRouter.move(sourceDisplayId,targetDisplayId,idle);
         }catch(Exception e){result.putString("error",message(e));return result;}
@@ -147,14 +147,14 @@ public final class ShellBridge extends IShellBridge.Stub {
     @Override public synchronized Bundle statusIcons(boolean hidden){
         authorize();long token=Binder.clearCallingIdentity();Bundle result=new Bundle();
         try{
-            if(hidden&&(sink==null||displayControl==null||!displayControl.isOwned()))throw new IllegalStateException("開閉待機が有効ではありません");
+            if(hidden&&(sink==null||displayControl==null||!displayControl.isOwned()))throw new IllegalStateException("@folduo/err_monitor_inactive");
             if(bars==null)bars=new StatusBarControl();bars.hide(hidden);result.putBoolean("ok",true);
         }catch(Exception e){result.putString("error",message(e));}finally{Binder.restoreCallingIdentity(token);}return result;
     }
     @Override public synchronized Bundle navigate(int displayId,int action,int taskId){
         authorize();long token=Binder.clearCallingIdentity();Bundle result=new Bundle();
         try{
-            if(displayId!=1||sink==null||displayControl==null||!displayControl.isOwned())throw new IllegalStateException("内側の操作を利用できません");
+            if(displayId!=1||sink==null||displayControl==null||!displayControl.isOwned())throw new IllegalStateException("@folduo/err_inner_unavailable");
             if(taskRouter==null)taskRouter=new TaskDisplayRouter();
             if(action==android.view.KeyEvent.KEYCODE_HOME)taskRouter.showHome(displayId);
             else if(action==InnerNavigation.SETTINGS)taskRouter.openSettings(context,displayId);
@@ -162,7 +162,7 @@ public final class ShellBridge extends IShellBridge.Stub {
             else if(action==android.view.KeyEvent.KEYCODE_BACK){taskRouter.focusTop(displayId);NavigationInput.back(displayId);}
             else if(action==android.view.KeyEvent.KEYCODE_APP_SWITCH)result.putParcelableArrayList("apps",taskRouter.recentApps(context));
             else if(action==0&&taskId>=0)taskRouter.selectRecent(taskId,displayId);
-            else throw new IllegalArgumentException("未対応の操作です");
+            else throw new IllegalArgumentException("@folduo/err_unsupported_action");
             result.putBoolean("ok",true);
         }catch(Exception e){result.putString("error",message(e));}finally{Binder.restoreCallingIdentity(token);}return result;
     }
@@ -206,13 +206,13 @@ public final class ShellBridge extends IShellBridge.Stub {
             Object wm=Class.forName("android.view.IWindowManager$Stub").getMethod("asInterface",IBinder.class).invoke(null,binder);
             Class.forName("android.view.IWindowManager").getMethod("captureDisplay",int.class,argsClass,Class.forName(family+"$ScreenCaptureListener")).invoke(wm,displayId,args,listener);
             Object buffer=Class.forName(family+"$SynchronousScreenCaptureListener").getMethod("getBuffer").invoke(listener);
-            if(buffer==null)throw new IOException("No capturable display frame");
+            if(buffer==null)throw new IOException("@folduo/err_no_frame");
             Class<?> bufferClass=Class.forName(family+"$ScreenshotHardwareBuffer");
             HardwareBuffer hardware=(HardwareBuffer)bufferClass.getMethod("getHardwareBuffer").invoke(buffer);
             try{
-                if((boolean)bufferClass.getMethod("containsSecureLayers").invoke(buffer))throw new SecurityException("Protected frame excluded");
+                if((boolean)bufferClass.getMethod("containsSecureLayers").invoke(buffer))throw new SecurityException("@folduo/err_protected_frame");
                 Bitmap bitmap=(Bitmap)bufferClass.getMethod("asBitmap").invoke(buffer);
-                if(bitmap==null)throw new IOException("Empty frame");
+                if(bitmap==null)throw new IOException("@folduo/err_empty_frame");
                 result.putParcelable("frame",bitmap);result.putBoolean("ok",true);
             }finally{if(hardware!=null)hardware.close();}
         }catch(Exception e){result.putString("error",message(e));}finally{Binder.restoreCallingIdentity(token);}
