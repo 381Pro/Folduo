@@ -72,11 +72,11 @@ The cover screen uses Samsung's normal navigation. The inner screen has a small 
 - App resizing can still cause layout shifts. Samsung's private APIs and wallpaper responses may change after OS updates.
 - If Shizuku stops, the animation stops. Automatic recovery is not guaranteed.
 
-## Known issue: home screen does not respond after unfolding
+## Known issue: app icons do not launch apps after unfolding
 
-A user report describes the home screen becoming unresponsive when the phone is unfolded while Folduo is active. Tapping app icons on the inner screen may not launch apps. Closing the phone and returning to the cover screen restores home screen interaction in the reported case.
+With Folduo active, tapping an app icon on the inner home screen may not launch the app after unfolding. The home screen still accepts touch input: long-pressing an icon displays the app-selection screen. In the reported case, closing the phone and returning to the cover screen allows normal home screen operation.
 
-**Workaround:** close the phone and use the home screen on the cover display. The cause, exact reproduction conditions and affected versions have not been confirmed. This issue is not fixed.
+**Workaround:** close the phone and launch apps from the home screen on the cover display. The cause, exact reproduction conditions and affected versions have not been confirmed. This issue is not fixed.
 
 ## Stop and restore
 
