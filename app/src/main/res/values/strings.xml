@@ -153,4 +153,26 @@
     <string name="err_no_frame">No capturable display frame</string>
     <string name="err_protected_frame">Protected frame excluded</string>
     <string name="err_empty_frame">Empty frame</string>
+    <string name="home_description">Folduo home screen</string>
+    <string name="home_time">Current time</string>
+    <string name="home_today">Today</string>
+    <string name="home_all_apps">All apps  ↑</string>
+    <string name="home_add">Add</string>
+    <string name="home_add_app">Add an app</string>
+    <string name="home_icon_description">%1$s. Long-press to change</string>
+    <string name="home_edit_note">Edit note</string>
+    <string name="home_battery">Battery  %1$s</string>
+    <string name="home_note_empty">Note\n\nTap here to write\nsomething to remember.</string>
+    <string name="home_note_title">Note</string>
+    <string name="home_note_hint">Saved only on this device</string>
+    <string name="home_save">Save</string>
+    <string name="home_search">Search apps</string>
+    <string name="home_choose">Choose an app for this position</string>
+    <string name="home_drawer_title">All apps</string>
+    <string name="home_launch_failed">Could not open the app: %1$s</string>
+    <string name="home_launch_missing">The selected app is not available.</string>
+    <string name="home_launch_unconfirmed">The selected app did not appear in time.</string>
+    <string name="home_open">Open Folduo home</string>
+    <string name="home_default">Use Folduo as the home app</string>
+    <string name="home_setup">Folduo includes a home screen with app icons. While fold animation is active, it opens selected apps on the screen you are using. Long-press an icon to change it.</string>
 </resources>

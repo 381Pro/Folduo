@@ -156,7 +156,11 @@ public final class ShellBridge extends IShellBridge.Stub {
         try{
             if(displayId!=1||sink==null||displayControl==null||!displayControl.isOwned())throw new IllegalStateException("@folduo/err_inner_unavailable");
             if(taskRouter==null)taskRouter=new TaskDisplayRouter();
-            if(action==android.view.KeyEvent.KEYCODE_HOME)taskRouter.showHome(displayId);
+            if(action==android.view.KeyEvent.KEYCODE_HOME){
+                android.content.Intent home=new android.content.Intent(android.content.Intent.ACTION_MAIN).addCategory(android.content.Intent.CATEGORY_HOME);
+                android.content.ComponentName preferred=home.resolveActivity(context.getPackageManager());
+                taskRouter.showHome(displayId,preferred);
+            }
             else if(action==InnerNavigation.SETTINGS)taskRouter.openSettings(context,displayId);
             else if(action==InnerNavigation.PREVIEW)result.putParcelable("preview",taskRouter.preview(taskId));
             else if(action==android.view.KeyEvent.KEYCODE_BACK){taskRouter.focusTop(displayId);NavigationInput.back(displayId);}
@@ -165,6 +169,20 @@ public final class ShellBridge extends IShellBridge.Stub {
             else throw new IllegalArgumentException("@folduo/err_unsupported_action");
             result.putBoolean("ok",true);
         }catch(Exception e){result.putString("error",message(e));}finally{Binder.restoreCallingIdentity(token);}return result;
+    }
+    @Override public synchronized Bundle launchApp(int displayId,String component){
+        authorize();long token=Binder.clearCallingIdentity();Bundle result=new Bundle();
+        try{
+            if(displayId!=1)throw new IllegalArgumentException("@folduo/err_launch_target");
+            if(displayControl==null||!displayControl.isOwned()){
+                result.putBoolean("ok",true);result.putBoolean("handled",false);return result;
+            }
+            if(sink==null)throw new IllegalStateException("@folduo/err_inner_unavailable");
+            if(taskRouter==null)taskRouter=new TaskDisplayRouter();
+            taskRouter.launchApp(context,android.content.ComponentName.unflattenFromString(component),displayId);
+            result.putBoolean("ok",true);result.putBoolean("handled",true);
+        }catch(Exception e){result.putString("error",message(e));}
+        finally{Binder.restoreCallingIdentity(token);}return result;
     }
     @Override public Bundle windowState(int displayId){
         authorize();long token=Binder.clearCallingIdentity();Bundle result=new Bundle();java.lang.Process process=null;

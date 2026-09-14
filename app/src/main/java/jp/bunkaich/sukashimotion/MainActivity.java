@@ -27,6 +27,13 @@ public final class MainActivity extends Activity {
         label(page,getString(R.string.intro),15,0xffc5d3cd);
         state=label(page,"",15,0xffb3eed4);
         button(page,getString(R.string.preview),()->startActivity(new Intent(this,PreviewActivity.class)));
+        label(page,getString(R.string.home_setup),14,0xffc5d3cd);
+        button(page,getString(R.string.home_open),this::openHome);
+        button(page,getString(R.string.home_default),()->{
+            android.app.role.RoleManager roles=getSystemService(android.app.role.RoleManager.class);
+            if(roles.isRoleHeld(android.app.role.RoleManager.ROLE_HOME))openHome();
+            else startActivityForResult(roles.createRequestRoleIntent(android.app.role.RoleManager.ROLE_HOME),9);
+        });
         label(page,getString(R.string.inner_controls_title),21,Color.WHITE);
         label(page,getString(R.string.inner_controls_body),14,0xffc5d3cd);
         label(page,getString(R.string.setup_title),21,Color.WHITE);
@@ -89,6 +96,18 @@ public final class MainActivity extends Activity {
         text.append('\n').append(c.getString(R.string.gyro_result,c.getString(gyro&&sub?R.string.both_gyros:R.string.missing_gyro)));
         text.append("\n\n").append(c.getString(R.string.display_result,UiText.raw(b.getString("display")).resolve(c)));
         if(!b.getString("error","").isEmpty())text.append('\n').append(UiText.raw(b.getString("error")).resolve(c));return text.toString();
+    }
+    void openHome(){
+        if(getDisplay().getDisplayId()==1&&MotionSettings.enabled(this)&&getSystemService(android.app.role.RoleManager.class).isRoleHeld(android.app.role.RoleManager.ROLE_HOME)){
+            IShellBridge bridge=BridgeConnection.bridge;
+            BridgeConnection.work.execute(()->{
+                try{
+                    if(bridge==null)throw new IllegalStateException(getString(R.string.bridge_missing));
+                    Bundle result=bridge.navigate(1,KeyEvent.KEYCODE_HOME,-1);
+                    if(!result.getBoolean("ok"))throw new IllegalStateException(result.getString("error"));
+                }catch(Exception error){handler.post(()->{if(!isDestroyed())Toast.makeText(this,UiText.error(error).resolve(this),Toast.LENGTH_LONG).show();});}
+            });
+        }else startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).setComponent(new ComponentName(this,HomeActivity.class)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
     }
     private String languageName(){
         LocaleList locales=getSystemService(LocaleManager.class).getApplicationLocales();

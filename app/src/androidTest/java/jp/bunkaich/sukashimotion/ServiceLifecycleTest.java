@@ -23,6 +23,7 @@ public class ServiceLifecycleTest {
   public Bundle moveApp(int source,int target,boolean idle){moves++;Bundle b=new Bundle();b.putBoolean("ok",true);return b;}
   public Bundle statusIcons(boolean hidden){Bundle b=new Bundle();b.putBoolean("ok",true);return b;}
   public Bundle navigate(int displayId,int action,int taskId){Bundle b=new Bundle();b.putBoolean("ok",true);return b;}
+  public Bundle launchApp(int displayId,String component){Bundle b=new Bundle();b.putBoolean("ok",true);b.putBoolean("handled",true);return b;}
   public Bundle hold(boolean inner,int previousOwner){holds++;if(holdEntered!=null){holdEntered.countDown();try{allowHold.await(3,TimeUnit.SECONDS);}catch(InterruptedException e){Thread.currentThread().interrupt();}}Bundle b=new Bundle();b.putBoolean("ok",true);return b;}
   public void release(){releases++;}public void heartbeat(){}public void startAngles(IAngleSink sink){this.sink=sink;starts++;}public void stopAngles(){if(stopEntered!=null){stopEntered.countDown();try{allowStop.await(3,TimeUnit.SECONDS);}catch(InterruptedException e){Thread.currentThread().interrupt();}}sink=null;}public void destroy(){}
  }

@@ -76,7 +76,9 @@ The cover screen uses Samsung's normal navigation. The inner screen has a small 
 
 With Folduo active, tapping an app icon on the inner home screen may not launch the app after unfolding. The home screen still accepts touch input: long-pressing an icon displays the app-selection screen. In the reported case, closing the phone and returning to the cover screen allows normal home screen operation.
 
-**Workaround:** close the phone and launch apps from the home screen on the cover display. The cause, exact reproduction conditions and affected versions have not been confirmed. This issue is not fixed.
+**Workaround for the published release:** close the phone and launch apps from the home screen on the cover display.
+
+The 0.1.17 candidate adds an optional Folduo home screen. On the test phone, Samsung redirects new launches from the inner display to the cover display. The candidate moves only the selected app to the inner display and restores the selected home when returning. Three Calculator/home round trips, moving the home between both displays, long-press selection and opening settings passed on the phone. The final check with physical folding is still pending; the published release remains 0.1.16.
 
 ## Stop and restore
 

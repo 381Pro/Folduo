@@ -15,5 +15,6 @@ interface IShellBridge {
  Bundle moveApp(int sourceDisplayId, int targetDisplayId, boolean idle) = 9;
  Bundle statusIcons(boolean hidden) = 10;
  Bundle navigate(int displayId, int action, int taskId) = 11;
+ Bundle launchApp(int displayId, String component) = 12;
  void destroy() = 16777114;
 }

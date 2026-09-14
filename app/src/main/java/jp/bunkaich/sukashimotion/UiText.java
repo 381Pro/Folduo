@@ -46,6 +46,8 @@ final class UiText {
         case "err_empty_frame" -> R.string.err_empty_frame;
         case "err_home_missing" -> R.string.err_home_missing;
         case "err_inner_unavailable" -> R.string.err_inner_unavailable;
+        case "err_launch_target" -> R.string.home_launch_missing;
+        case "err_launch_unconfirmed" -> R.string.home_launch_unconfirmed;
         case "err_monitor_inactive" -> R.string.err_monitor_inactive;
         case "err_no_frame" -> R.string.err_no_frame;
         case "err_protected_frame" -> R.string.err_protected_frame;

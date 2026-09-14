@@ -152,4 +152,26 @@
     <string name="err_no_frame">取得できる画面がありません</string>
     <string name="err_protected_frame">保護された画面は取得しません</string>
     <string name="err_empty_frame">取得した画面は空でした</string>
+    <string name="home_description">Folduoのホーム画面</string>
+    <string name="home_time">いまの時刻</string>
+    <string name="home_today">今日</string>
+    <string name="home_all_apps">すべてのアプリ  ↑</string>
+    <string name="home_add">追加</string>
+    <string name="home_add_app">アプリを追加</string>
+    <string name="home_icon_description">%1$s。長押しで変更</string>
+    <string name="home_edit_note">メモを編集</string>
+    <string name="home_battery">バッテリー  %1$s</string>
+    <string name="home_note_empty">メモ\n\nここをタップして、\n覚えておきたいことを。</string>
+    <string name="home_note_title">メモ</string>
+    <string name="home_note_hint">この端末だけに保存するメモ</string>
+    <string name="home_save">保存</string>
+    <string name="home_search">アプリ名を検索</string>
+    <string name="home_choose">ホームに置くアプリ</string>
+    <string name="home_drawer_title">すべてのアプリ</string>
+    <string name="home_launch_failed">アプリを開けませんでした：%1$s</string>
+    <string name="home_launch_missing">選択したアプリを利用できません。</string>
+    <string name="home_launch_unconfirmed">選択したアプリの起動を確認できませんでした。</string>
+    <string name="home_open">Folduoのホームを開く</string>
+    <string name="home_default">Folduoをホームアプリにする</string>
+    <string name="home_setup">Folduoのホーム画面も使えます。開閉演出が有効なときは、選んだアプリを操作中の画面へ表示します。アイコンは長押しで入れ替えられます。</string>
 </resources>

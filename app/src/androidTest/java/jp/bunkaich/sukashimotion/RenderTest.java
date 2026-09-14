@@ -144,10 +144,12 @@ public class RenderTest {
   Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
   try(var out=new java.io.FileOutputStream(new java.io.File(context.getExternalFilesDir(null),"blur-continuity.csv"))){out.write(samples.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));}
  }
- @Test public void appHasNoHomeRoleIntent()throws Exception{
+ @Test public void homeRoleOpensTheInteractiveHomeInsteadOfSettings()throws Exception{
   Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
   android.content.Intent intent=new android.content.Intent(android.content.Intent.ACTION_MAIN).addCategory(android.content.Intent.CATEGORY_HOME).setPackage(context.getPackageName());
-  assertTrue(context.getPackageManager().queryIntentActivities(intent,0).isEmpty());
+  java.util.List<android.content.pm.ResolveInfo> homes=context.getPackageManager().queryIntentActivities(intent,0);
+  assertEquals(1,homes.size());
+  assertEquals(HomeActivity.class.getName(),homes.get(0).activityInfo.name);
  }
  private int distance(int a,int b){return Math.abs(Color.red(a)-Color.red(b))+Math.abs(Color.green(a)-Color.green(b))+Math.abs(Color.blue(a)-Color.blue(b));}
 }
