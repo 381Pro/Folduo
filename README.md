@@ -72,6 +72,12 @@ The cover screen uses Samsung's normal navigation. The inner screen has a small 
 - App resizing can still cause layout shifts. Samsung's private APIs and wallpaper responses may change after OS updates.
 - If Shizuku stops, the animation stops. Automatic recovery is not guaranteed.
 
+## Known issue: home screen does not respond after unfolding
+
+A user report describes the home screen becoming unresponsive when the phone is unfolded while Folduo is active. Tapping app icons on the inner screen may not launch apps. Closing the phone and returning to the cover screen restores home screen interaction in the reported case.
+
+**Workaround:** close the phone and use the home screen on the cover display. The cause, exact reproduction conditions and affected versions have not been confirmed. This issue is not fixed.
+
 ## Stop and restore
 
 - **Stop:** open the app and tap **Stop and release display control**. Do this before uninstalling.
@@ -103,8 +109,6 @@ git checkout v0.1.16
 Output: `app/build/outputs/apk/release/app-release.apk`. Use `gradlew.bat` on Windows. Builds were verified on macOS with Java 17; Windows and Linux have not been tested end to end.
 
 The wrapper pins Gradle 9.5.1 and verifies its checksum. AGP is 9.2.1; compile SDK is 37, target SDK is 36, and minimum SDK is 33. Initial builds need internet access to download dependencies. The wallpaper helper also needs Python 3.
-
-Folduo can be installed over Sukashi Motion 0.1.14 without uninstalling it. The package ID and signing certificate are unchanged.
 
 The release APK uses the existing experimental debug signing certificate. Signing keys are not published. Your own build uses your local certificate and cannot directly replace the release APK. Stop and uninstall the existing app before switching signatures; settings and permissions will need to be configured again. Uninstalling does not restore the wallpaper.
 
