@@ -8,7 +8,7 @@ I built this out of curiosity. I don't plan to actively develop or maintain it. 
 
 An experimental Galaxy Z Fold7 app that uses hinge angle to create a frosted-glass transition between the cover and inner screens. It holds an app's image in place with parallax and blur while the phone folds, then hands over to the app on the other display. It works with regular apps without replacing your launcher.
 
-[Download v0.1.17](https://github.com/bunkaich/Folduo/releases/tag/v0.1.17)
+[Download v0.1.21](https://github.com/bunkaich/Folduo/releases/tag/v0.1.21)
 
 ## Requirements
 
@@ -35,7 +35,7 @@ Fine-grained angles come from Samsung's interactive wallpaper through a Shizuku 
 2. Set the inner home screen to the Samsung stock interactive wallpaper identified internally as `video_002.mp4`. The cover home screen must use its matching stock image, `sub_wallpaper_002`. Wallpaper names in Settings vary by OS version.
 3. To get fine-grained angles on the cover screen too, use the helper below to apply the same stock interactive wallpaper there. **This changes the cover home wallpaper in One UI as well.** Keep your original wallpaper if you want to restore it later.
 
-Download and extract `folduo-wallpaper-setup-0.1.17.zip` from the release. Install Python 3 and Android SDK platform-tools (ADB). Connect one phone with USB debugging authorized, then run these commands in the extracted folder:
+Download and extract `folduo-wallpaper-setup-0.1.21.zip` from the release. Install Python 3 and Android SDK platform-tools (ADB). Connect one phone with USB debugging authorized, then run these commands in the extracted folder:
 
 ```sh
 python3 cover-wallpaper.py status
@@ -56,7 +56,7 @@ python3 tools/cover-wallpaper.py apply
 
 ### 3. Install and start the app
 
-1. Install `Folduo-0.1.17.apk` from the release. With ADB: `adb install -r Folduo-0.1.17.apk`.
+1. Install `Folduo-0.1.21.apk` from the release. With ADB: `adb install -r Folduo-0.1.21.apk`.
 2. Open **Folduo**, tap **Connect Shizuku**, and grant access.
 3. Tap **Allow display over other apps**. Allow notifications too.
 4. Read the screen-capture explanation, then tap **Allow temporary screen access and enable**.
@@ -104,7 +104,7 @@ sdkmanager --licenses
 
 git clone https://github.com/bunkaich/Folduo.git
 cd Folduo
-git checkout v0.1.17
+git checkout v0.1.21
 ./gradlew :app:assembleRelease :app:testDebugUnitTest :app:lintRelease
 ```
 
@@ -114,7 +114,7 @@ The wrapper pins Gradle 9.5.1 and verifies its checksum. AGP is 9.2.1; compile S
 
 The release APK uses the existing experimental debug signing certificate. Signing keys are not published. Your own build uses your local certificate and cannot directly replace the release APK. Stop and uninstall the existing app before switching signatures; settings and permissions will need to be configured again. Uninstalling does not restore the wallpaper.
 
-Release downloads include `SHA256SUMS`. Compare the APK with `shasum -a 256 Folduo-0.1.17.apk` on macOS or `sha256sum Folduo-0.1.17.apk` on Linux.
+Release downloads include `SHA256SUMS`. Compare the APK with `shasum -a 256 Folduo-0.1.21.apk` on macOS or `sha256sum Folduo-0.1.21.apk` on Linux.
 
 ## Screen access
 

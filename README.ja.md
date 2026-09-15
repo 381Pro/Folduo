@@ -8,7 +8,7 @@
 
 Galaxy Z Fold7の開閉角度に合わせて、前面と内側の画面をすりガラス越しにつなぐ実験アプリです。開閉中はアプリの像をその場に残すように視差とぼかしを加え、もう一方の画面へ引き継ぎます。ホームアプリを変更せず、通常のアプリで使えます。
 
-[0.1.17をダウンロード](https://github.com/bunkaich/Folduo/releases/tag/v0.1.17)
+[0.1.21をダウンロード](https://github.com/bunkaich/Folduo/releases/tag/v0.1.21)
 
 ## 必要な環境
 
@@ -35,7 +35,7 @@ root化は不要です。初期設定後は、ワイヤレスデバッグでShiz
 2. 内側ホームを、端末内で `video_002.mp4` と識別されるSamsung純正の開閉連動動画壁紙に設定します。前面ホームは対応する純正静止壁紙 `sub_wallpaper_002` が前提です。設定画面の名称はOS版により異なります。
 3. 前面でも細かな角度を取得するには、以下の補助で前面ホームを同じ純正動画壁紙へ変更します。**One UIの前面ホームの壁紙も変わります。** 後で戻したい壁紙は元の画像や設定を保存してください。
 
-リリースの `folduo-wallpaper-setup-0.1.17.zip` を展開し、PCにPython 3とAndroid SDK platform-tools（ADB）を用意します。USBデバッグを許可した端末を1台接続し、展開先で実行します。
+リリースの `folduo-wallpaper-setup-0.1.21.zip` を展開し、PCにPython 3とAndroid SDK platform-tools（ADB）を用意します。USBデバッグを許可した端末を1台接続し、展開先で実行します。
 
 ```sh
 python3 cover-wallpaper.py status
@@ -56,7 +56,7 @@ python3 tools/cover-wallpaper.py apply
 
 ### 3. アプリを入れて開始する
 
-1. リリースの `Folduo-0.1.17.apk` をインストールします。ADBなら `adb install -r Folduo-0.1.17.apk` でも導入できます。
+1. リリースの `Folduo-0.1.21.apk` をインストールします。ADBなら `adb install -r Folduo-0.1.21.apk` でも導入できます。
 2. 「Folduo」を開き、「Shizukuを接続」で利用を許可します。
 3. 「重ねて表示を許可」を押して許可し、通知も許可します。
 4. 画面の一時利用についての説明を読み、「画面の一時利用に同意して常時有効にする」を押します。
@@ -104,7 +104,7 @@ sdkmanager --licenses
 
 git clone https://github.com/bunkaich/Folduo.git
 cd Folduo
-git checkout v0.1.17
+git checkout v0.1.21
 ./gradlew :app:assembleRelease :app:testDebugUnitTest :app:lintRelease
 ```
 
@@ -114,7 +114,7 @@ Gradle 9.5.1はWrapperから取得してチェックサムを検証します。A
 
 配布APKは従来の実験版と同じデバッグ署名を使っています。署名鍵は公開しません。自分でビルドすると署名が異なるため、配布版へ直接上書きできません。署名を切り替える際は停止・アンインストール後に導入し、設定と権限をやり直してください。壁紙はアンインストールしても戻りません。
 
-配布物の `SHA256SUMS` と、macOSなら `shasum -a 256 Folduo-0.1.17.apk`、Linuxなら `sha256sum Folduo-0.1.17.apk` の結果を照合できます。
+配布物の `SHA256SUMS` と、macOSなら `shasum -a 256 Folduo-0.1.21.apk`、Linuxなら `sha256sum Folduo-0.1.21.apk` の結果を照合できます。
 
 ## 画面の取り扱い
 

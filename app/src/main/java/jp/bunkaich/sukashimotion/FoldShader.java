@@ -1,6 +1,6 @@
 package jp.bunkaich.sukashimotion;
 
-/** Gentle parallax through an opaque frosted image; the optical edge is blurred too. */
+/** Stable-width inner frost and the existing cover effect, both fully opaque. */
 final class FoldShader {
     static final String CODE = """
         uniform shader content;
@@ -8,7 +8,7 @@ final class FoldShader {
         uniform shader rest4; uniform shader rest12; uniform shader rest28; uniform shader rest60;
         uniform shader rear; uniform shader rear1; uniform shader rear2; uniform shader rear4; uniform shader rear12; uniform shader rear28; uniform shader rear60;
         uniform float2 size; uniform float2 cacheScale; uniform float2 rearCacheScale;
-        uniform float2 pose;
+        uniform float2 pose; uniform float innerDepth;
         uniform float amount; uniform float inner;
         uniform float radiusDp; uniform float rearBlend; uniform float pixelsPerDp;
         half blurWeight(float radius,float lower,float upper) {
@@ -38,19 +38,29 @@ final class FoldShader {
         }
         half4 main(float2 p) {
             float page=size.x*mix(1.0,.5,inner);
-            if(amount<=0.0 || (inner>.5 && p.x>=page))return half4(content.eval(p).rgb,1);
+            if(inner>.5) {
+                if(p.x>=page || innerDepth<=0.0)return half4(content.eval(p).rgb,1);
+            } else if(amount<=0.0)return half4(content.eval(p).rgb,1);
             float hinge=inner*page;
             float direction=mix(1.0,-1.0,inner);
             float distance=clamp((p.x-hinge)*direction/page,0.0,1.0);
-            // Bounded expansion is calibrated to the original launcher. The real pane
-            // already rotates, so projecting the full hinge angle again overstates depth.
+            // Preserve the accepted cover animation. Inner content keeps its width:
+            // only the gentle vertical compensation follows the moving pane.
             float u=distance/(1.0+pose.x);
             float denominator=1.0-pose.y*u;
             float2 q=float2(hinge+direction*page*u,
                 size.y*.5+(p.y-size.y*.5)/denominator);
+            if(inner>.5) {
+                denominator=1.0-innerDepth*distance;
+                q=float2(p.x,
+                    size.y*.5+(p.y-size.y*.5)/denominator);
+            }
             float radius=radiusDp*amount*(.45+.55*sqrt(distance));
-            // Frost and projection both join the stationary right pane at the exact hinge.
-            if(inner>.5)radius=radiusDp*amount*2.0*(.35+.65*distance)*smoothstep(0.0,.16,distance);
+            // Let detail remain readable near the hinge, then build frost continuously
+            // towards the far edge. Squared distance has no seam-band threshold and
+            // joins the sharp right pane with zero slope. Cap the far edge at 28dp.
+            // Keep the accepted radius in source-image space, independent of taper.
+            if(inner>.5)radius=radiusDp*amount*distance*distance;
             // Both images use the same angle-driven radius. Linking a prepared rear
             // image must not impose a sudden blur floor or change optical strength.
             half4 color=frost(q,radius);
@@ -62,6 +72,7 @@ final class FoldShader {
             float edge=max(-q.y,q.y-size.y);
             float coverage=1.0-smoothstep(-feather,feather,edge);
             float taperVisible=smoothstep(0.0,.012,pose.y*u);
+            if(inner>.5)taperVisible=smoothstep(0.0,.012,innerDepth*distance);
             coverage=mix(1.0,coverage,taperVisible);
             return half4(color.rgb*half(coverage),1);
         }

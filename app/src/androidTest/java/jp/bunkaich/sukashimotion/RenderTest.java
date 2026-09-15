@@ -14,6 +14,9 @@ public class RenderTest {
   return render(inner,angle,PreviewActivity.sample(640,720),null);
  }
  private Bitmap render(boolean inner,float angle,Bitmap source,Bitmap linked)throws Exception{
+  return render(inner,angle,source,linked,false);
+ }
+ private Bitmap render(boolean inner,float angle,Bitmap source,Bitmap linked,boolean physical)throws Exception{
   Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
   android.content.res.Configuration config=new android.content.res.Configuration(context.getResources().getConfiguration());config.densityDpi=160;
   Context renderContext=context.createConfigurationContext(config);
@@ -23,7 +26,16 @@ public class RenderTest {
   HardwareRenderer renderer=new HardwareRenderer();renderer.setSurface(reader.getSurface());
   InstrumentationRegistry.getInstrumentation().runOnMainSync(()->{
    SnapshotView view=new SnapshotView(renderContext,frame,inner,false);view.layout(0,0,640,720);if(rear!=null)view.setRearFrame(rear,false);view.setAngle(angle);
-   RenderNode node=new RenderNode("fold-test");node.setPosition(0,0,640,720);Canvas c=node.beginRecording();view.draw(c);node.endRecording();
+   RenderNode node=new RenderNode("fold-test");node.setPosition(0,0,640,720);Canvas c=node.beginRecording();
+   if(physical){
+    c.drawColor(Color.BLACK);c.save();c.clipRect(320,0,640,720);view.draw(c);c.restore();
+    // Independent physical panel projection, applied AFTER the actual GPU shader.
+    double beta=Math.toRadians(180-angle),depth=320*Math.sin(beta),eyeDistance=5120,scale=eyeDistance/(eyeDistance-depth);
+    float x=(float)(320-320*Math.cos(beta)*scale),top=(float)(360-360*scale),bottom=720-top;
+    Matrix transform=new Matrix();transform.setPolyToPoly(new float[]{0,0,320,0,320,720,0,720},0,new float[]{x,top,320,0,320,720,x,bottom},0,4);
+    c.save();c.concat(transform);c.clipRect(0,0,320,720);view.draw(c);c.restore();
+   }else view.draw(c);
+   node.endRecording();
    renderer.setContentRoot(node);renderer.createRenderRequest().setWaitForPresent(true).syncAndDraw();
   });
   android.media.Image image=null;
@@ -50,13 +62,63 @@ public class RenderTest {
  @Test public void coverShapeHasBlackOutsideAndVisibleCenter()throws Exception{
   Bitmap folded=render(false,70);assertTrue("Far outside remains black",Color.green(folded.getPixel(620,2))<5);assertTrue(Color.green(folded.getPixel(320,360))>20);
  }
- @Test public void shaderUsesCalibratedParallaxInsteadOfScreenPosition()throws Exception{
+ @Test public void innerHorizontalGradientStaysInPlaceAtEveryAngle()throws Exception{
   Bitmap gradient=Bitmap.createBitmap(640,720,Bitmap.Config.ARGB_8888);
   for(int x=0;x<640;x++)for(int y=0;y<720;y++)gradient.setPixel(x,y,Color.rgb(Math.round(x*255f/640),128,80));
-  Bitmap result=render(true,120,gradient,null);int pixel=result.getPixel(100,360);
-  float expected=GlassProjection.sample(100,360,640,720,120,true).x()*255/640;
-  assertEquals("Gradient landmark follows the calibrated image plane",expected,Color.red(pixel),3);
-  assertTrue("Parallax is present but restrained",Color.red(pixel)-100*255f/640>4&&Color.red(pixel)-100*255f/640<12);
+  for(float angle:new float[]{180,174,150,120,100,91,90,89}){
+   Bitmap result=render(true,angle,gradient,null);
+   for(int x=40;x<320;x+=20)assertEquals("No horizontal stretch at "+angle+", x="+x,x*255f/640,Color.red(result.getPixel(x,360)),3);
+   result.recycle();
+  }
+ }
+ @Test public void iconEdgesBlurWithoutSlidingOrStretching()throws Exception{
+  Bitmap bars=Bitmap.createBitmap(640,720,Bitmap.Config.ARGB_8888);Canvas canvas=new Canvas(bars);canvas.drawColor(Color.BLACK);
+  Paint paint=new Paint();paint.setColor(Color.WHITE);
+  // Two icon-sized rectangles, kept away from the physical image silhouette.
+  canvas.drawRect(64,200,112,520,paint);canvas.drawRect(224,200,272,520,paint);
+  StringBuilder measurements=new StringBuilder("angle,far_left,far_right,near_left,near_right\n");
+  for(float angle:new float[]{180,174,160,140,120,100,91,90}){
+   Bitmap result=render(true,angle,bars,null);measurements.append(angle);
+   for(int edge:new int[]{64,112,224,272}){
+    int crossing=-1;boolean rising=edge==64||edge==224;
+    for(int x=edge-16;x<=edge+16;x++){
+     int a=Color.red(result.getPixel(x,360)),b=Color.red(result.getPixel(x+1,360));
+     if(rising?a<128&&b>=128:a>=128&&b<128){crossing=x;break;}
+    }
+    assertTrue("Icon edge remains present at "+angle+", edge="+edge,crossing>=0);
+    assertEquals("Blur softens an edge without moving it at "+angle,edge-1,crossing,3);
+    measurements.append(',').append(crossing);
+   }
+   measurements.append('\n');result.recycle();
+  }
+  Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
+  try(var out=new java.io.FileOutputStream(new java.io.File(context.getExternalFilesDir(null),"inner-horizontal-stability.csv"))){out.write(measurements.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));}
+ }
+ @Test public void physicalPaneRotationKeepsTheAcceptedVerticalCompensation()throws Exception{
+  Bitmap gradient=Bitmap.createBitmap(640,720,Bitmap.Config.ARGB_8888);
+  for(int x=0;x<640;x++)for(int y=0;y<720;y++)gradient.setPixel(x,y,Color.rgb(Math.round(x*255f/640),Math.round(y*255f/720),80));
+  for(float angle:new float[]{179,170,150,120,100}){
+   Bitmap result=render(true,angle,gradient,null,true);
+   double beta=Math.toRadians(180-angle);int left=(int)Math.ceil(320-320*Math.cos(beta)/(1-Math.sin(beta)/16));
+   for(int x=Math.max(40,left+20);x<310;x+=7)for(int y=250;y<470;y+=17){
+    int pixel=result.getPixel(x,y);
+    assertEquals("Vertical image position at "+angle+" degrees, y="+y,y*255f/720,Color.green(pixel),3);
+   }
+  }
+ }
+ @Test public void innerBlackBoundaryFollowsThePlaneAndStaysOpaque()throws Exception{
+  Bitmap white=Bitmap.createBitmap(640,720,Bitmap.Config.ARGB_8888);white.eraseColor(Color.WHITE);
+  Bitmap result=render(true,120,white,null);int previous=-1,largestStep=0,middle=0;
+  for(int y=0;y<190;y++){
+   int value=Color.red(result.getPixel(20,y));if(value>10&&value<245)middle++;
+   if(previous>=0)largestStep=Math.max(largestStep,Math.abs(value-previous));previous=value;
+  }
+  // The smaller inset is narrower than the frost radius, so the black surround
+  // is intentionally softened even at the physical top edge, never an alpha hole.
+  assertTrue("Outside is darker than the middle of the optical boundary",Color.red(result.getPixel(20,0))<128);
+  assertTrue("Image height is retained away from the soft edge",Color.red(result.getPixel(20,90))>245);
+  assertTrue("The optical edge is frosted, not cut out",middle>=30&&largestStep<=10);
+  for(int x=0;x<640;x+=3)for(int y=0;y<720;y+=3)assertEquals(255,Color.alpha(result.getPixel(x,y)));
  }
  @Test public void coverUsesInnerRightThenReturnsToOwnFrame()throws Exception{
   Bitmap cover=Bitmap.createBitmap(640,720,Bitmap.Config.ARGB_8888);cover.eraseColor(Color.BLUE);
@@ -143,6 +205,32 @@ public class RenderTest {
   }
   Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
   try(var out=new java.io.FileOutputStream(new java.io.File(context.getExternalFilesDir(null),"blur-continuity.csv"))){out.write(samples.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));}
+ }
+ @Test public void innerBlurGrowsContinuouslyWithAngleAndHingeDistance()throws Exception{
+  Bitmap edge=horizontalEdge();double[] previous={-1,-1,-1};int[] columns={40,160,280};
+  StringBuilder samples=new StringBuilder("angle,far_sigma,middle_sigma,hinge_sigma\n");
+  for(int angle=180;angle>=90;angle-=2){
+   Bitmap result=render(true,angle,edge,null);samples.append(angle);double priorColumn=Double.POSITIVE_INFINITY;
+   for(int i=0;i<columns.length;i++){
+    double sigma=edgeSigma(result,columns[i]);samples.append(',').append(sigma);
+    if(previous[i]>=0){
+     assertTrue("No inner blur cliff at "+angle+", x="+columns[i]+": "+previous[i]+" -> "+sigma,sigma-previous[i]<1.6);
+     assertTrue("Closing should not visibly sharpen at "+angle,sigma>=previous[i]-.35);
+    }
+    assertTrue("Blur decreases continuously towards the hinge",sigma<=priorColumn+.35);priorColumn=sigma;previous[i]=sigma;
+   }
+   samples.append('\n');result.recycle();
+  }
+  Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
+  try(var out=new java.io.FileOutputStream(new java.io.File(context.getExternalFilesDir(null),"inner-blur-continuity.csv"))){out.write(samples.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));}
+ }
+ @Test public void innerGlassRetainsDetailNearHingeAndFrostsTheFarEdge()throws Exception{
+  Bitmap result=render(true,120,horizontalEdge(),null);
+  double far=edgeSigma(result,40),middle=edgeSigma(result,160),hinge=edgeSigma(result,280);
+  assertTrue("Detail by the hinge should stay readable, sigma="+hinge,hinge<1.5);
+  assertTrue("The middle should be lightly frosted, sigma="+middle,middle>2&&middle<7);
+  assertTrue("The far edge should remain frosted without the former heavy haze, sigma="+far,far>10&&far<20);
+  assertTrue("Frost grows progressively with distance",far>middle*2&&middle>hinge*3);
  }
  @Test public void homeRoleOpensTheInteractiveHomeInsteadOfSettings()throws Exception{
   Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();

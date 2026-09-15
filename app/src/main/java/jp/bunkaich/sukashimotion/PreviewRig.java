@@ -33,9 +33,9 @@ final class PreviewRig extends FrameLayout {
         if(inner?angle<=90:angle>=90){canvas.restore();return;}
         float[] points={0,0,edge,0,edge,h,0,h},projected=new float[8];
         for(int i=0;i<4;i++){
-            // Physical rotation is independent of the perceptually tuned image sampling.
+            // Use the same fixed reference distance as the inner image plane.
             float hinge=inner?edge:0,sign=inner?-1:1,distance=(points[i*2]-hinge)*sign/edge;
-            double r=Math.toRadians(inner?180-angle:angle);float denominator=1-distance*(float)Math.sin(r)/4;
+            double r=Math.toRadians(inner?180-angle:angle);float denominator=1-distance*(float)Math.sin(r)/(inner?GlassProjection.REFERENCE_DISTANCE:4);
             projected[i*2]=hinge+sign*edge*distance*(float)Math.cos(r)/denominator;
             projected[i*2+1]=h*.5f+(points[i*2+1]-h*.5f)/denominator;
         }

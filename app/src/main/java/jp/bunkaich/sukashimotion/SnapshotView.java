@@ -49,8 +49,10 @@ final class SnapshotView extends View {
     }
     @Override protected void onDraw(Canvas canvas){
         if(sharpHold||!frame.prepared){canvas.drawColor(Color.BLACK);canvas.drawBitmap(frame.sharp,null,new Rect(0,0,getWidth(),getHeight()),holdPaint);return;}
-        GlassProjection.Pose pose=GlassProjection.pose(angle,inner);
+        GlassProjection.Pose pose=GlassProjection.coverPose(angle);
         shader.setFloatUniform("pose",pose.expansion(),pose.taper());
+        GlassProjection.Plane plane=GlassProjection.innerPlane(angle);
+        shader.setFloatUniform("innerDepth",plane.depth());
         shader.setFloatUniform("amount",FoldPolicy.blur(angle,inner));
         float ready=rearSince==0?1:Math.min(1,(SystemClock.uptimeMillis()-rearSince)/160f);ready=ready*ready*(3-2*ready);
         shader.setFloatUniform("rearBlend",rearFrame==null?0:GlassProjection.rearWeight(angle)*ready);
