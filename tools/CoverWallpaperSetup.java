@@ -11,7 +11,9 @@ import java.lang.reflect.Method;
 public final class CoverWallpaperSetup {
     private static final int COVER_HOME = 17;
     private static final String RESOURCE_PACKAGE = "com.samsung.android.wallpaper.res";
-    private static final String STOCK_URI = "android.resource://" + RESOURCE_PACKAGE + "/drawable/sub_wallpaper_002.png";
+    // Samsung's wallpaper settings store the stock image without an extension; restore-stock writes it with one.
+    private static final String STOCK_RESOURCE = "android.resource://" + RESOURCE_PACKAGE + "/drawable/sub_wallpaper_002";
+    private static final String STOCK_URI = STOCK_RESOURCE + ".png";
     private static final ComponentName LIVE = new ComponentName("com.samsung.android.wallpaper.live",
             "com.samsung.android.wallpaper.live.fold.FoldInteractive");
 
@@ -41,11 +43,14 @@ public final class CoverWallpaperSetup {
         Object uri = WallpaperManager.class.getMethod("semGetUri", int.class).invoke(manager, COVER_HOME);
         WallpaperInfo info = (WallpaperInfo) WallpaperManager.class.getMethod("getWallpaperInfo", int.class, int.class)
                 .invoke(manager, COVER_HOME, 0);
-        boolean stock = STOCK_URI.equals(String.valueOf(uri)) && (info == null ||
+        String current = String.valueOf(uri);
+        boolean stock = (STOCK_URI.equals(current) || STOCK_RESOURCE.equals(current)) && (info == null ||
                 "com.android.systemui.wallpapers.ImageWallpaper".equals(info.getComponent().getClassName()));
         boolean live = info != null && LIVE.equals(info.getComponent())
                 && angleVideo((Bundle) getExtras.invoke(manager, COVER_HOME, 0));
         System.out.println("Cover home: " + (live ? "angle-aware stock video" : stock ? "original stock image" : "other wallpaper"));
+        if (!stock && !live) System.out.println("Observed uri=" + current + " component="
+                + (info == null ? "(static image)" : info.getComponent().flattenToString()));
         if (action.equals("status")) return;
         if ((!stock && !live)) throw new IllegalStateException("Wallpaper changed since setup; refusing to overwrite it");
         if (action.equals("apply") && live || action.equals("restore-stock") && stock) {
